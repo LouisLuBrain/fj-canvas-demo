@@ -1,54 +1,51 @@
-# React + TypeScript + Vite
+# Demo Plan
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Description
 
-Currently, two official plugins are available:
+A sample demo to implant a canvas demo.
+一个简单的 canvas 画布应用示例
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Target:
 
-## Expanding the ESLint configuration
+1. 基本UI还原
+2. 绘制和擦除功能，stroke width 画笔粗细设置
+3. 上传image
+4. 画布缩放
+5. history 展示
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Code:
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+1. UI
+    1. page _(FJAIObjectRemovePage.tsx)_
+    2. canvas 画布 _(FJCanvasDesk.tsx)_， canvas 工具 _(FJCanvasToolBar.tsx)_
+    3. history 展示 _(FJHistoryImagesList.tsx)_
+2. Canvas API class _(FJCanvasUtils.ts)_
+    1. 初始化
+    2. 放置image
+    3. 绘制路径
+    4. 设置stroke属性
+    5. destroy 与销毁
+    6. 缩放画布
+3. 画布功能
+    1. 绘制
+    2. 擦除
+    3. 缩放
+    4. 画笔指针
+4. image 上传与展示 _(FJImageUploader.tsx)_
+5. history 读取（使用mock data）
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Schedule:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- UI 交互（image, toolbar, range input）**0.5**
+- 画布 utils class 和 交互 **1**
+- history **0.5**
+- 自测 **0.5**
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+_单位天_
+
+2.5 \* 1.5 = 4
+
+## NOTE:
+
+1. Start component files with `FJ-` prefix
+2. Use the module CSS files
