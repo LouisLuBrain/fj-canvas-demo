@@ -3,3 +3,28 @@
     flex: 1;
     flex-direction: column;
 }
+
+.content {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+}
+
+.content .left-content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+
+    box-sizing: border-box;
+
+    width: 478px;
+
+    padding: 21px;
+
+    border-right: 1px solid #e0e0e0;
+}
+
+.content .right-content {
+    display: flex;
+    flex: 1;
+}

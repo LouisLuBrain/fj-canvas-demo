@@ -7,6 +7,7 @@ import { FJCanvasUtils } from './FJCanvasUtils';
 interface FJCanvasDeskProps {
     width?: number;
     height?: number;
+    ref?: React.RefObject<HTMLCanvasElement>;
 }
 
 const FJCanvasDesk: React.FC<FJCanvasDeskProps> = (props: FJCanvasDeskProps) => {
@@ -88,8 +89,6 @@ const FJCanvasDesk: React.FC<FJCanvasDeskProps> = (props: FJCanvasDeskProps) => 
             className='flex flex-col shadow-sm px-4 pt-2 pb-4 rounded-md box-content'
             style={{ width: props.width || 800 }}
         >
-            <FJCanvasTool onToolChange={handleToolChange} width={props.width || 800} />
-            <input type='file' accept='image/*' onChange={handleUploadImage} />
             <div
                 className='overflow-hidden border border-gray-300 rounded-md'
                 style={{
