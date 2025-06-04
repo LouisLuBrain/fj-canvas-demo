@@ -3,4 +3,86 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    gap: 8px;
+
+    height: 70px;
+    padding: 0 40px;
+
+    border-bottom: 1px solid #e2e3e7;
+
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.logo {
+    width: 91px;
+    height: 29px;
+}
+
+.more {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+
+    width: auto;
+    margin-left: 30px;
+    padding: 12px 4px;
+
+    border-radius: 8px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.more:hover {
+    background-color: #f3f3f7;
+}
+
+.placeholder {
+    flex: 1;
+}
+
+.credits {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+
+    margin-right: 14px;
+
+    padding: 8px;
+
+    border-radius: 9999px;
+
+    background-color: rgb(251 190 41 / 35%);
+}
+
+.credits span {
+    color: #000;
+}
+
+.credits .plus {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 24px;
+    height: 24px;
+
+    margin-left: 12px;
+
+    border-radius: 9999px;
+
+    background-color: #fff;
+
+    font-size: 16px;
+}
+
+.user-profile {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
