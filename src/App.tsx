@@ -3,7 +3,7 @@ import FJAIObjectRemovePage from './pages/FJAIObjectRemovePage';
 
 function App() {
     return (
-        <div className={styles.container}>
+        <div className={styles.page}>
             <FJAIObjectRemovePage />
         </div>
     );
