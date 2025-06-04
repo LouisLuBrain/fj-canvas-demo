@@ -1,0 +1,182 @@
+{
+  "plugins": [
+    "stylelint-order"
+  ],
+  "extends": [
+    "stylelint-config-standard"
+  ],
+  "rules": {
+    "order/properties-order": [
+      {
+        "groupName": "Positioning",
+        "emptyLineBefore": "always",
+        "properties": [
+          "position",
+          "top",
+          "right",
+          "bottom",
+          "left",
+          "z-index"
+        ]
+      },
+      {
+        "groupName": "Flexbox & Grid",
+        "emptyLineBefore": "always",
+        "properties": [
+          "display",
+          "flex",
+          "flex-direction",
+          "flex-wrap",
+          "flex-basis",
+          "flex-grow",
+          "flex-shrink",
+          "justify-content",
+          "align-items",
+          "align-content",
+          "gap",
+          "order"
+        ]
+      },
+      {
+        "groupName": "Box Model",
+        "emptyLineBefore": "always",
+        "properties": [
+          "box-sizing",
+          "width",
+          "min-width",
+          "max-width",
+          "height",
+          "min-height",
+          "max-height",
+          "margin",
+          "margin-top",
+          "margin-right",
+          "margin-bottom",
+          "margin-left",
+          "padding",
+          "padding-top",
+          "padding-right",
+          "padding-bottom",
+          "padding-left"
+        ]
+      },
+      {
+        "groupName": "Border",
+        "emptyLineBefore": "always",
+        "properties": [
+          "border",
+          "border-width",
+          "border-style",
+          "border-color",
+          "border-top",
+          "border-right",
+          "border-bottom",
+          "border-left",
+          "border-radius",
+          "box-shadow"
+        ]
+      },
+      {
+        "groupName": "Background",
+        "emptyLineBefore": "always",
+        "properties": [
+          "background",
+          "background-color",
+          "background-image",
+          "background-repeat",
+          "background-position",
+          "background-size",
+          "background-attachment"
+        ]
+      },
+      {
+        "groupName": "Typography",
+        "emptyLineBefore": "always",
+        "properties": [
+          "color",
+          "font-family",
+          "font-size",
+          "font-weight",
+          "font-style",
+          "line-height",
+          "text-align",
+          "text-transform",
+          "text-decoration",
+          "letter-spacing",
+          "word-spacing",
+          "white-space"
+        ]
+      },
+      {
+        "groupName": "Animation",
+        "emptyLineBefore": "always",
+        "properties": [
+          "transform",
+          "transform-origin",
+          "transition",
+          "transition-property",
+          "transition-duration",
+          "transition-timing-function",
+          "transition-delay",
+          "animation",
+          "animation-name",
+          "animation-duration",
+          "animation-timing-function",
+          "animation-delay",
+          "animation-iteration-count",
+          "animation-direction"
+        ]
+      },
+      {
+        "groupName": "Other",
+        "emptyLineBefore": "always",
+        "properties": [
+          "opacity",
+          "visibility",
+          "cursor",
+          "pointer-events",
+          "overflow",
+          "overflow-x",
+          "overflow-y",
+          "user-select"
+        ]
+      }
+    ],
+    "declaration-empty-line-before": [
+      "always",
+      {
+        "except": [
+          "first-nested"
+        ],
+        "ignore": [
+          "after-comment",
+          "after-declaration"
+        ]
+      }
+    ],
+    "custom-property-empty-line-before": [
+      "always",
+      {
+        "except": [
+          "after-custom-property",
+          "first-nested"
+        ],
+        "ignore": [
+          "after-comment"
+        ]
+      }
+    ],
+    "rule-empty-line-before": [
+      "always",
+      {
+        "except": [
+          "first-nested"
+        ],
+        "ignore": [
+          "after-comment"
+        ]
+      }
+    ],
+    "declaration-block-single-line-max-declarations": 1
+  }
+}
