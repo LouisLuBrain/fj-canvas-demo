@@ -8,7 +8,7 @@ export default function FJHeader() {
     return (
         <div className={styles.header}>
             <div className={styles.logo}>
-                <img src={fjLogo} alt='FJ Logo' />
+                <img width={91} height={29} src={fjLogo} alt='FJ Logo' />
             </div>
             <div className={styles.more}>
                 <IconSparkles color='#c907ff' fill='#c907ff' />
@@ -17,14 +17,14 @@ export default function FJHeader() {
             </div>
             <div className={styles.placeholder}></div>
             <div className={styles.credits}>
-                <img src={fjCoin} alt='Coin' />
+                <img width={24} height={24} src={fjCoin} alt='Coin' />
                 <span>9580.3</span>
                 <div className={styles.plus}>
                     <IconPlus size={14} stroke={4} />
                 </div>
             </div>
-            <div className={styles.user_profile}>
-                <img src={fjUserProfile} alt='User Profile' />
+            <div className={styles['user-profile']}>
+                <img width={40} height={40} src={fjUserProfile} alt='User Profile' />
             </div>
         </div>
     );
