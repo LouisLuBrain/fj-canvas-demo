@@ -1,0 +1,40 @@
+.tab-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+
+    width: 100%;
+
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.tab-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+
+    padding: 12px;
+
+    border: none;
+    border-bottom: 2px solid transparent;
+
+    background-color: transparent;
+
+    color: #080a10;
+    font-size: 16px;
+    font-weight: 500;
+
+    transition: all 0.2s ease;
+
+    opacity: 0.5;
+
+    cursor: pointer;
+}
+
+.tab-button[data-active='true'] {
+    border-bottom: 2px solid #080a10;
+
+    opacity: 1;
+}

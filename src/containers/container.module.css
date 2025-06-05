@@ -27,6 +27,9 @@
 .content .right-content {
     display: flex;
     flex: 1;
+    flex-direction: column;
+
+    padding: 0 16px;
 }
 
 .remove-object-btn {
