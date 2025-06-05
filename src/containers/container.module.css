@@ -12,7 +12,6 @@
 
 .content .left-content {
     display: flex;
-    flex: 1;
     flex-direction: column;
 
     box-sizing: border-box;
@@ -27,4 +26,28 @@
 .content .right-content {
     display: flex;
     flex: 1;
+}
+
+.remove-object-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 16px 24px;
+}
+
+.remove-object-btn span {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+
+    margin-left: 8px;
+
+    padding: 2px 4px;
+    padding-right: 8px;
+
+    border-radius: 9999px;
+
+    background-color: #a415754d;
 }
