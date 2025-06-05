@@ -1,0 +1,42 @@
+.images-history-list-container {
+    width: 100%;
+    height: 100%;
+
+    overflow-y: hidden;
+}
+
+.images-history-list {
+    display: flex;
+    flex-flow: row wrap;
+
+    gap: 16px;
+
+    width: 100%;
+    padding: 16px 0;
+}
+
+.images-history-list-item {
+    flex: 1 0 auto;
+
+    width: calc((100% - 32px) / 3);
+    min-width: 200px;
+
+    border-radius: 8px;
+
+    background-color: #f7f7f8;
+
+    transition: transform 0.2s ease;
+}
+
+.images-history-list-item:hover {
+    box-shadow: 0 4px 12px rgb(0 0 0 / 10%);
+
+    transform: translateY(-2px);
+}
+
+.images-history-list-item-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    vertical-align: middle;
+}
