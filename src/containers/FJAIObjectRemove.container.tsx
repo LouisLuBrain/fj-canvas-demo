@@ -14,7 +14,8 @@ export default function FJAIObjectRemoveContainer() {
     const [image, setImage] = useState<HTMLImageElement | null>(null);
 
     const isImageUploaded = useMemo(() => {
-        return image !== null && image.src !== '';
+        return true;
+        // return image !== null && image.src !== '';
     }, [image]);
 
     const handleRemoveObject = () => {
@@ -35,7 +36,7 @@ export default function FJAIObjectRemoveContainer() {
                             onClick={handleRemoveObject}
                             className={`${commonStyles['fj-main-btn']} ${styles['remove-object-btn']}`}
                         >
-                            Remove
+                            Generate
                             <span>
                                 <img src={FJCoinIcon} width={16} height={16} alt='cost coin' />
                                 -3
