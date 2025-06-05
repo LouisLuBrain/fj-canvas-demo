@@ -61,50 +61,13 @@ export class FJCanvasUtils {
     }
 
     /**
-     * 绘制填充矩形
-     * @param {number} x 左上角X坐标
-     * @param {number} y 左上角Y坐标
-     * @param {number} width 宽度
-     * @param {number} height 高度
-     * @param {string} color 填充颜色
-     */
-    fillRect(x: number, y: number, width: number, height: number, color: string = '#000000') {
-        this.ctx.fillStyle = color;
-        this.ctx.fillRect(x, y, width, height);
-    }
-
-    /**
-     * 绘制空心矩形
-     * @param {number} x 左上角X坐标
-     * @param {number} y 左上角Y坐标
-     * @param {number} width 宽度
-     * @param {number} height 高度
-     * @param {string} color 边框颜色
-     * @param {number} lineWidth 边框宽度
-     */
-    strokeRect(x: number, y: number, width: number, height: number, color: string = '#000000', lineWidth: number = 1) {
-        this.ctx.strokeStyle = color;
-        this.ctx.lineWidth = lineWidth;
-        this.ctx.strokeRect(x, y, width, height);
-    }
-
-    /**
-     * 清除指定区域
-     * @param {number} x 左上角X坐标
-     * @param {number} y 左上角Y坐标
-     * @param {number} width 宽度
-     * @param {number} height 高度
-     */
-    clearRect(x: number, y: number, width: number, height: number) {
-        this.ctx.clearRect(x, y, width, height);
-    }
-
-    /**
      * 清除整个画布
      */
     clear() {
-        this.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
+
+    // private _buildPath;
 
     /**
      * 绘制直线
@@ -124,13 +87,18 @@ export class FJCanvasUtils {
         lineWidth: number = 1,
     ) {
         this.ctx.strokeStyle = color;
-        this.ctx.lineWidth = lineWidth;
+        this.ctx.lineWidth = 0;
         this.ctx.lineCap = 'round';
 
         this.ctx.beginPath();
-        this.ctx.moveTo((x1 / this._scale) * this._dpr, (y1 / this._scale) * this._dpr);
-        this.ctx.lineTo((x2 / this._scale) * this._dpr, (y2 / this._scale) * this._dpr);
-        this.ctx.stroke();
+        this.ctx.arc((x1 / this._scale) * this._dpr, (y1 / this._scale) * this._dpr, lineWidth / 2, 0, Math.PI * 2);
+        this.ctx.fillStyle = color;
+        this.ctx.fill();
+
+        // this.ctx.beginPath();
+        // this.ctx.moveTo((x1 / this._scale) * this._dpr, (y1 / this._scale) * this._dpr);
+        // this.ctx.lineTo((x2 / this._scale) * this._dpr, (y2 / this._scale) * this._dpr);
+        // this.ctx.stroke();
         this.ctx.setTransform();
     }
 
@@ -219,6 +187,7 @@ export class FJCanvasUtils {
         const offsetX = clientX - left;
         const offsetY = clientY - top;
 
+        console.log('LOG ===> this._eraserColor: ', this._eraserColor);
         this.drawLine(offsetX - movementX, offsetY - movementY, offsetX, offsetY, this._eraserColor, this._strokeWidth);
     };
 
@@ -304,7 +273,7 @@ export class FJCanvasUtils {
             if (!patternCtx) throw new Error('Failed to get pattern context');
 
             patternCtx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight);
-            return this.ctx.createPattern(patternCanvas, 'repeat');
+            return this.ctx.createPattern(this.canvas, 'repeat');
         } catch (error) {
             console.error('Failed to draw image:', error);
             return null;
