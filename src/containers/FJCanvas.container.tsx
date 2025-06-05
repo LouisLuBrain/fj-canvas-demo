@@ -4,6 +4,7 @@ import FJImageHistoryList from '../components/imagesHistoryList/FJImageHistoryLi
 import FJTab from '../components/tab/FJTab';
 import { IconHistory, IconPhoto } from '@tabler/icons-react';
 import FJCanvasPlaceholder from '../components/placeholder/FJCanvasPlaceholder';
+import { FJCanvasUtils } from '../components/canvas/FJCanvasUtils';
 
 const TABS = [
     { label: 'Creations', value: 'canvas', icon: <IconPhoto size={18} /> },
@@ -11,10 +12,13 @@ const TABS = [
 ];
 
 interface FJCanvasContainerProps {
-    image?: HTMLImageElement;
+    image?: HTMLImageElement | null;
+    onCanvasReady?: (canvas: HTMLCanvasElement) => void;
+    onSDKReady?: (sdk: FJCanvasUtils) => void;
+    onError?: (error: Error) => void;
 }
 
-export default function FJCanvasContainer({ image }: FJCanvasContainerProps) {
+export default function FJCanvasContainer({ image, onCanvasReady, onSDKReady, onError }: FJCanvasContainerProps) {
     const [tab, setTab] = useState<'canvas' | 'history'>('canvas');
     const currentTab = useMemo(() => {
         return TABS.find(_tab => _tab.value === tab);
@@ -29,7 +33,17 @@ export default function FJCanvasContainer({ image }: FJCanvasContainerProps) {
                 }}
                 tabs={TABS}
             />
-            {tab === 'canvas' && (!image ? <FJCanvasPlaceholder /> : <FJCanvasDesk image={image} />)}
+            {tab === 'canvas' &&
+                (!image ? (
+                    <FJCanvasPlaceholder />
+                ) : (
+                    <FJCanvasDesk
+                        image={image}
+                        onCanvasReady={onCanvasReady}
+                        onSDKReady={onSDKReady}
+                        onError={onError}
+                    />
+                ))}
             {tab === 'history' && <FJImageHistoryList />}
         </>
     );

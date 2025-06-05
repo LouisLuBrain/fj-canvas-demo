@@ -1,4 +1,4 @@
-const DEFAULT_STROKE_COLOR = '#000';
+const DEFAULT_STROKE_COLOR = '#00f';
 const DEFAULT_STROKE_WIDTH = 20;
 const DEFAULT_ERASER_COLOR = '#fff';
 
@@ -34,18 +34,18 @@ export class FJCanvasUtils {
         this.ctx = ctx;
 
         // 设置实际像素大小以避免模糊
-        const dpr = window.devicePixelRatio || 1;
-        this.canvas.width = width * dpr;
-        this.canvas.height = height * dpr;
+        // const dpr = window.devicePixelRatio || 1;
+        // this.canvas.width = width * dpr;
+        // this.canvas.height = height * dpr;
 
-        this.ctx.scale(dpr, dpr);
+        // this.ctx.scale(dpr, dpr);
 
         // 设置显示大小
-        this.canvas.style.width = `${width}px`;
-        this.canvas.style.height = `${height}px`;
+        // this.canvas.style.width = `${width}px`;
+        // this.canvas.style.height = `${height}px`;
 
         // 根据设备像素比例缩放
-        ctx.scale(dpr, dpr);
+        // ctx.scale(dpr, dpr);
 
         // 清空画布
         ctx.clearRect(0, 0, width, height);
@@ -56,7 +56,6 @@ export class FJCanvasUtils {
         // this.scaleToFit = Math.min(scaleX, scaleY);
         // this.scaleToCover = Math.max(scaleX, scaleY);
 
-        this.canvas.style.transformOrigin = '0 0'; //scale from top left
         // this.canvas.style.transform = "scale(" + this.scaleToFit + ")";
     }
 
@@ -139,6 +138,7 @@ export class FJCanvasUtils {
      * @param {MouseEvent} e 鼠标事件
      */
     private _drawLineMove = (e: MouseEvent) => {
+        console.log('LOG ===> this._isDrawing: ', this._isDrawing);
         if (!this._isDrawing) return;
 
         const { clientX, clientY } = e;

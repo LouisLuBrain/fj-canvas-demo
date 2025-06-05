@@ -6,36 +6,36 @@ import styles from './canvasTool.module.css';
 export type Tool = 'pencil' | 'eraser' | 'strokeWidth';
 
 interface Props {
-    onToolChange?: (tool: Tool, value?: number) => void;
+    onDrawStart?: () => void;
+    onEraseStart?: () => void;
+    onStrokeWidthChange?: (width: number) => void;
 }
 
-export default function FJCanvasTool({ onToolChange }: Props) {
-    const [currentTool, setCurrentTool] = useState<Tool>('pencil');
+export default function FJCanvasTool({ onDrawStart, onEraseStart, onStrokeWidthChange }: Props) {
+    const [currentTool, setCurrentTool] = useState<Tool | null>(null);
     const [strokeWidth, setStrokeWidth] = useState<number>(1);
 
-    const handleToolClick = useCallback(
-        (tool: Tool, value?: number) => {
-            setCurrentTool(tool);
-            onToolChange?.(tool, value);
-        },
-        [onToolChange, setCurrentTool],
-    );
+    const handleToolClick = useCallback((tool: Tool) => {
+        setCurrentTool(tool);
+    }, []);
 
     const handlePencilClick = useCallback(() => {
         handleToolClick('pencil');
-    }, [handleToolClick]);
+        onDrawStart?.();
+    }, [handleToolClick, onDrawStart]);
 
     const handleEraserClick = useCallback(() => {
         handleToolClick('eraser');
-    }, [handleToolClick]);
+        onEraseStart?.();
+    }, [handleToolClick, onEraseStart]);
 
     const handleStrokeWidthChange = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
             const value = Number(e.target.value);
             setStrokeWidth(value);
-            onToolChange?.('strokeWidth', value);
+            onStrokeWidthChange?.(value);
         },
-        [onToolChange, setStrokeWidth],
+        [onStrokeWidthChange],
     );
 
     return (
