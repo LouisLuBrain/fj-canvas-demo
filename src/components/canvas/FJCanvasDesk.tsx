@@ -3,6 +3,7 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { FJCanvasUtils } from './FJCanvasUtils';
 import FJCanvasFloatToolBar from './FJCanvasFloatToolBar';
+import styles from './canvasDesk.module.css';
 
 interface FJCanvasDeskProps {
     width?: number;
@@ -85,9 +86,9 @@ const FJCanvasDesk: React.FC<FJCanvasDeskProps> = (props: FJCanvasDeskProps) => 
     return showPlaceholder ? (
         <div>Sorry, your browser doesn't support canvas feature.</div>
     ) : (
-        <div style={{ position: 'relative' }} className='flex flex-col shadow-sm px-4 pt-2 pb-4 rounded-md box-content'>
+        <div className={styles['canvas-desk']}>
             <FJCanvasFloatToolBar />
-            <div className='overflow-hidden border border-gray-300 rounded-md'>
+            <div className={styles['canvas-container']}>
                 <canvas ref={canvasRef} />
             </div>
         </div>
