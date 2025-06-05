@@ -9,9 +9,10 @@ interface FJCanvasDeskProps {
     width?: number;
     height?: number;
     ref?: React.RefObject<HTMLCanvasElement>;
+    image?: HTMLImageElement;
 }
 
-const FJCanvasDesk: React.FC<FJCanvasDeskProps> = (props: FJCanvasDeskProps) => {
+const FJCanvasDesk: React.FC<FJCanvasDeskProps> = ({ width, height, image }: FJCanvasDeskProps) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [, setSdk] = useState<FJCanvasUtils | null>(null);
     const [showPlaceholder, setShowPlaceholder] = useState<boolean>(false);
@@ -23,8 +24,14 @@ const FJCanvasDesk: React.FC<FJCanvasDeskProps> = (props: FJCanvasDeskProps) => 
         let sdk: FJCanvasUtils | null = null;
 
         try {
-            sdk = new FJCanvasUtils(canvas, props.width || 800, props.height || 600);
+            sdk = new FJCanvasUtils(canvas, width || 800, height || 600);
             setSdk(sdk);
+
+            if (image) {
+                sdk.clear();
+                const pattern = sdk.drawImage(image, 0, 0);
+                if (pattern) sdk.setEraserColor(pattern);
+            }
         } catch (error) {
             console.error(error);
             setShowPlaceholder(true);
@@ -34,7 +41,7 @@ const FJCanvasDesk: React.FC<FJCanvasDeskProps> = (props: FJCanvasDeskProps) => 
         return () => {
             sdk?.destroy();
         };
-    }, [props]);
+    }, [width, height, image]);
 
     // const handleToolChange = useCallback(
     //     (tool: Tool, value?: number) => {

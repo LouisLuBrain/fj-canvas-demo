@@ -1,28 +1,15 @@
 import { useMemo, useState } from 'react';
-import FJImageHistoryList from '../components/imagesHistoryList/FJImageHistoryList';
 import FJHeader from '../components/header/FJHeader';
 import styles from './container.module.css';
 import FJCanvasTool from '../components/canvas/FJCanvasTool';
 import FJImageUploader from '../components/imageUploader/FJImageUploader';
-import FJCanvasDesk from '../components/canvas/FJCanvasDesk';
 
 import FJCoinIcon from '../assets/fj-coin.png';
 import commonStyles from '../common.module.css';
-import FJTab from '../components/tab/FJTab';
-import { IconHistory, IconPhoto } from '@tabler/icons-react';
-
-const TABS = [
-    { label: 'Creations', value: 'canvas', icon: <IconPhoto size={18} /> },
-    { label: 'History', value: 'history', icon: <IconHistory size={18} /> },
-];
+import FJCanvasContainer from './FJCanvas.container';
 
 export default function FJAIObjectRemoveContainer() {
-    const [tab, setTab] = useState<'canvas' | 'history'>('canvas');
     const [image, setImage] = useState<HTMLImageElement | null>(null);
-
-    const currentTab = useMemo(() => {
-        return TABS.find(_tab => _tab.value === tab);
-    }, [tab]);
 
     const isImageUploaded = useMemo(() => {
         return image !== null && image.src !== '';
@@ -55,15 +42,7 @@ export default function FJAIObjectRemoveContainer() {
                     )}
                 </div>
                 <div className={styles['right-content']}>
-                    <FJTab
-                        currentTab={currentTab}
-                        onTabChange={val => {
-                            setTab(val.value as 'canvas' | 'history');
-                        }}
-                        tabs={TABS}
-                    />
-                    {tab === 'canvas' && <FJCanvasDesk />}
-                    {tab === 'history' && <FJImageHistoryList />}
+                    <FJCanvasContainer />
                 </div>
             </div>
         </div>
