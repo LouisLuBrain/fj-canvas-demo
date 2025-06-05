@@ -50,7 +50,6 @@ export default function FJCanvasFloatToolBar({ onScaleChange }: FJCanvasFloatToo
                     type='range'
                     min={MIN_SCALE}
                     max={MAX_SCALE}
-                    defaultValue={MIN_SCALE}
                     step={RANGE_STEP}
                     value={scale}
                     onChange={handleScaleChange}
