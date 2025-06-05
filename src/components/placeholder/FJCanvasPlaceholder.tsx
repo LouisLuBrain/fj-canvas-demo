@@ -7,8 +7,8 @@ interface FJCanvasPlaceholderProps {
 }
 
 export default function FJCanvasPlaceholder({
-    title = 'Quickly remove unwanted objects using AI',
-    description = 'Remove objects efficiently, create images professionally',
+    title = 'Quickly remove objects from the picture',
+    description = 'Easy and efficient',
     videoUrl = 'https://www.flexclip.com/app/ai-tools/img/objectEraser/video.mp4?v=1.0.22',
 }: FJCanvasPlaceholderProps) {
     return (
