@@ -30,12 +30,12 @@ const FJCanvasDesk: React.FC<FJCanvasDeskProps> = ({
         let sdk: FJCanvasUtils | null = null;
 
         try {
-            sdk = new FJCanvasUtils(canvas, canvas.width, canvas.height);
+            sdk = new FJCanvasUtils(canvas, canvas.clientWidth, canvas.clientHeight);
             sdkRef.current = sdk;
             onSDKReady?.(sdk);
 
             sdk.clear();
-            const pattern = sdk.drawImage(image, 0, 0);
+            const pattern = sdk.drawImage(image);
             if (pattern) sdk.setEraserColor(pattern);
         } catch (error) {
             console.error(error);

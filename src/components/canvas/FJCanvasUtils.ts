@@ -1,6 +1,9 @@
-const DEFAULT_STROKE_COLOR = '#00f';
+const DEFAULT_STROKE_COLOR = '#0000ff';
 const DEFAULT_STROKE_WIDTH = 20;
 const DEFAULT_ERASER_COLOR = '#fff';
+
+const CANVAS_FIT_PADDING_X = 16;
+const CANVAS_FIT_PADDING_Y = 48;
 
 /**
  * 画布SDK
@@ -16,6 +19,7 @@ export class FJCanvasUtils {
     private _eraserColor: string | CanvasGradient | CanvasPattern = DEFAULT_ERASER_COLOR;
     private _lastPoint: { x: number; y: number } = { x: 0, y: 0 };
     private _scale: number = 1;
+    private _scaleToFit: number = 1;
 
     /**
      * 构造函数
@@ -34,18 +38,15 @@ export class FJCanvasUtils {
         this.ctx = ctx;
 
         // 设置实际像素大小以避免模糊
-        // const dpr = window.devicePixelRatio || 1;
-        // this.canvas.width = width * dpr;
-        // this.canvas.height = height * dpr;
-
-        // this.ctx.scale(dpr, dpr);
+        const dpr = window.devicePixelRatio || 1;
+        this.canvas.width = width * dpr;
+        this.canvas.height = height * dpr;
 
         // 设置显示大小
-        // this.canvas.style.width = `${width}px`;
-        // this.canvas.style.height = `${height}px`;
+        this.canvas.style.width = `${width}px`;
+        this.canvas.style.height = `${height}px`;
 
-        // 根据设备像素比例缩放
-        // ctx.scale(dpr, dpr);
+        // this.canvas.style.transformOrigin = 'center center';
 
         // 清空画布
         ctx.clearRect(0, 0, width, height);
@@ -53,10 +54,10 @@ export class FJCanvasUtils {
         // const scaleX = window.innerWidth / this.canvas.width;
         // const scaleY = window.innerHeight / this.canvas.height;
 
-        // this.scaleToFit = Math.min(scaleX, scaleY);
+        // const scaleToFit = Math.min(scaleX, scaleY);
         // this.scaleToCover = Math.max(scaleX, scaleY);
 
-        // this.canvas.style.transform = "scale(" + this.scaleToFit + ")";
+        // ctx.scale(scaleToFit, scaleToFit);
     }
 
     /**
@@ -125,6 +126,12 @@ export class FJCanvasUtils {
         this.ctx.strokeStyle = color;
         this.ctx.lineWidth = lineWidth;
         this.ctx.lineCap = 'round';
+
+        // this.ctx.beginPath();
+        // this.ctx.arc(x1 / this._scale, y1 / this._scale, lineWidth / 2, 0, Math.PI * 2);
+        // this.ctx.fillStyle = this._strokeColor;
+        // this.ctx.fill();
+
         this.ctx.beginPath();
         this.ctx.moveTo(x1 / this._scale, y1 / this._scale);
         this.ctx.lineTo(x2 / this._scale, y2 / this._scale);
@@ -138,7 +145,6 @@ export class FJCanvasUtils {
      * @param {MouseEvent} e 鼠标事件
      */
     private _drawLineMove = (e: MouseEvent) => {
-        console.log('LOG ===> this._isDrawing: ', this._isDrawing);
         if (!this._isDrawing) return;
 
         const { clientX, clientY } = e;
@@ -250,31 +256,63 @@ export class FJCanvasUtils {
         this.canvas.removeEventListener('mousemove', this._eraserMove);
     }
 
-    private _saveImagePattern = (image: HTMLImageElement) => {
-        const offscreen = document.createElement('canvas');
-        offscreen.width = image.width * 0.1;
-        offscreen.height = image.height * 0.1;
-        const ctx = offscreen.getContext('2d');
-        ctx?.drawImage(image, 0, 0, offscreen.width, offscreen.height);
-    };
-
     /**
      * 绘制图片
      * @param {HTMLImageElement} image 图片
      * @param {number} x 左上角X坐标
      * @param {number} y 左上角Y坐标
      */
-    drawImage(image: HTMLImageElement, x: number, y: number): CanvasPattern | null {
+    drawImage(image: HTMLImageElement): CanvasPattern | null {
+        const dpr = window.devicePixelRatio || 1;
         const offscreen = document.createElement('canvas');
-        offscreen.width = image.width * 0.1;
-        offscreen.height = image.height * 0.1;
+
+        // 使用设备像素比创建更大的离屏画布
+        offscreen.width = image.naturalWidth * dpr;
+        offscreen.height = image.naturalHeight * dpr;
+
+        // 计算缩放比例（基于显示尺寸）
+        const scaleX = this.canvas.width / (image.naturalWidth * dpr - CANVAS_FIT_PADDING_X * dpr);
+        const scaleY = this.canvas.height / (image.naturalHeight * dpr - CANVAS_FIT_PADDING_Y * dpr);
+        const scaleToFit = Math.min(scaleX, scaleY);
+        this._scaleToFit = scaleToFit;
+
+        // 计算居中位置（考虑DPR）
+        const scaledWidth = image.naturalWidth * dpr * scaleToFit;
+        const scaledHeight = image.naturalHeight * dpr * scaleToFit;
+        const centerX = (this.canvas.width - scaledWidth) / 2;
+        const centerY = (this.canvas.height - scaledHeight) / 2;
+
         try {
-            const ctx = offscreen.getContext('2d');
-            ctx?.drawImage(image, 0, 0, offscreen.width, offscreen.height);
-            this.ctx.drawImage(offscreen, x, y);
-            return this.ctx.createPattern(offscreen, 'repeat');
+            const offscreenCtx = offscreen.getContext('2d', {
+                alpha: true,
+                willReadFrequently: true,
+            });
+            if (!offscreenCtx) throw new Error('Failed to get offscreen context');
+
+            // 设置离屏画布的缩放以匹配设备像素比
+            offscreenCtx.scale(dpr, dpr);
+
+            // 在离屏画布上绘制原始图片
+            offscreenCtx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight);
+
+            // 清除主画布
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.setScale(1);
+
+            // 在主画布上绘制高清图片
+            this.ctx.drawImage(offscreen, centerX, centerY, scaledWidth, scaledHeight);
+
+            // 创建图案时使用原始大小的画布
+            const patternCanvas = document.createElement('canvas');
+            patternCanvas.width = image.naturalWidth;
+            patternCanvas.height = image.naturalHeight;
+            const patternCtx = patternCanvas.getContext('2d');
+            if (!patternCtx) throw new Error('Failed to get pattern context');
+
+            patternCtx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight);
+            return this.ctx.createPattern(patternCanvas, 'repeat');
         } catch (error) {
-            console.error(error);
+            console.error('Failed to draw image:', error);
             return null;
         }
     }

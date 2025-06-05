@@ -8,7 +8,7 @@ interface FJCanvasFloatToolBarProps {
 }
 
 export default function FJCanvasFloatToolBar({ onScaleChange }: FJCanvasFloatToolBarProps) {
-    const [scale, setScale] = useState(10);
+    const [scale, setScale] = useState(100);
 
     const handleScaleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setScale(Number(e.target.value));
