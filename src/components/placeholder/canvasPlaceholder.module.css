@@ -1,0 +1,44 @@
+.canvas-placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    padding: 24px;
+
+    background: url('../../assets/fj-creations-placeholder-bg.png') no-repeat center center;
+    background-size: cover;
+}
+
+.canvas-placeholder-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+
+    text-align: center;
+}
+
+.canvas-placeholder-content h1 {
+    margin: 0;
+
+    color: #1c1c1e;
+    font-size: 32px;
+    font-weight: 600;
+}
+
+.canvas-placeholder-content p {
+    margin: 0;
+
+    color: #666;
+    font-size: 16px;
+}
+
+.canvas-placeholder-video {
+    width: 100%;
+    margin-top: 24px;
+
+    border-radius: 12px;
+}
