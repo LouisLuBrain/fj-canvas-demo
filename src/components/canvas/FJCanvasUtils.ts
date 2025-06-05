@@ -271,8 +271,8 @@ export class FJCanvasUtils {
         offscreen.height = image.naturalHeight * dpr;
 
         // 计算缩放比例（基于显示尺寸）
-        const scaleX = this.canvas.width / (image.naturalWidth * dpr - CANVAS_FIT_PADDING_X * 2 * dpr);
-        const scaleY = this.canvas.height / (image.naturalHeight * dpr - CANVAS_FIT_PADDING_Y * 2 * dpr);
+        const scaleX = (this.canvas.width - CANVAS_FIT_PADDING_X * 2 * dpr) / (image.naturalWidth * dpr);
+        const scaleY = (this.canvas.height - CANVAS_FIT_PADDING_Y * 2 * dpr) / (image.naturalHeight * dpr);
         const scaleToFit = Math.min(scaleX, scaleY);
         this._scaleToFit = scaleToFit;
 
