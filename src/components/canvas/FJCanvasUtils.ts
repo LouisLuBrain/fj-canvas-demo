@@ -5,6 +5,10 @@ const DEFAULT_ERASER_COLOR = '#fff';
 const CANVAS_FIT_PADDING_X = 16;
 const CANVAS_FIT_PADDING_Y = 60;
 
+interface DefaultConfig {
+    strokeWidth?: number;
+}
+
 /**
  * 画布SDK
  * @class
@@ -29,7 +33,7 @@ export class FJCanvasUtils {
      * @param {number} width 画布宽度
      * @param {number} height 画布高度
      */
-    constructor(canvasEl: HTMLCanvasElement, width: number, height: number) {
+    constructor(canvasEl: HTMLCanvasElement, width: number, height: number, defaultConfig?: DefaultConfig) {
         this.canvas = canvasEl;
         const ctx = this.canvas.getContext('2d');
         if (!ctx) {
@@ -58,6 +62,14 @@ export class FJCanvasUtils {
         // this.scaleToCover = Math.max(scaleX, scaleY);
 
         // ctx.scale(scaleToFit, scaleToFit);
+
+        this._strokeWidth = defaultConfig?.strokeWidth || DEFAULT_STROKE_WIDTH;
+    }
+
+    getConfig() {
+        return {
+            strokeWidth: this._strokeWidth,
+        };
     }
 
     /**
@@ -288,6 +300,11 @@ export class FJCanvasUtils {
         this._isDrawing = false;
         this.setScale(1);
         this.clear();
+
+        this.stopDrawLine();
+        this.stopEraser();
+        // this._strokeColor = DEFAULT_STROKE_COLOR;
+        // this._eraserColor = DEFAULT_ERASER_COLOR;
         // TODO: 销毁事件
     }
 }

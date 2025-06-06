@@ -30,7 +30,7 @@ const FJCanvasDesk: React.FC<FJCanvasDeskProps> = ({
         let sdk: FJCanvasUtils | null = null;
 
         try {
-            sdk = new FJCanvasUtils(canvas, canvas.clientWidth, canvas.clientHeight);
+            sdk = new FJCanvasUtils(canvas, canvas.clientWidth, canvas.clientHeight, sdkRef.current?.getConfig());
             sdkRef.current = sdk;
             onSDKReady?.(sdk);
 
