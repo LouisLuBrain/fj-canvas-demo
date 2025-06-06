@@ -3,7 +3,7 @@ const DEFAULT_STROKE_WIDTH = 20;
 const DEFAULT_ERASER_COLOR = '#fff';
 
 const CANVAS_FIT_PADDING_X = 16;
-const CANVAS_FIT_PADDING_Y = 48;
+const CANVAS_FIT_PADDING_Y = 60;
 
 /**
  * 画布SDK
@@ -67,8 +67,6 @@ export class FJCanvasUtils {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    // private _buildPath;
-
     /**
      * 绘制直线
      * @param {number} x1 起点X坐标
@@ -94,12 +92,6 @@ export class FJCanvasUtils {
         this.ctx.arc((x1 / this._scale) * this._dpr, (y1 / this._scale) * this._dpr, lineWidth / 2, 0, Math.PI * 2);
         this.ctx.fillStyle = color;
         this.ctx.fill();
-
-        // this.ctx.beginPath();
-        // this.ctx.moveTo((x1 / this._scale) * this._dpr, (y1 / this._scale) * this._dpr);
-        // this.ctx.lineTo((x2 / this._scale) * this._dpr, (y2 / this._scale) * this._dpr);
-        // this.ctx.stroke();
-        this.ctx.setTransform();
     }
 
     /**
@@ -187,7 +179,6 @@ export class FJCanvasUtils {
         const offsetX = clientX - left;
         const offsetY = clientY - top;
 
-        console.log('LOG ===> this._eraserColor: ', this._eraserColor);
         this.drawLine(offsetX - movementX, offsetY - movementY, offsetX, offsetY, this._eraserColor, this._strokeWidth);
     };
 
