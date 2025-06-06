@@ -18,6 +18,7 @@ export class FJCanvasUtils {
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
     private _isDrawing: boolean = false;
+    private _isEraser: boolean = false;
     private _strokeColor: string | CanvasGradient | CanvasPattern = DEFAULT_STROKE_COLOR;
     private _strokeWidth: number = DEFAULT_STROKE_WIDTH;
     private _eraserColor: string | CanvasGradient | CanvasPattern = DEFAULT_ERASER_COLOR;
@@ -25,6 +26,7 @@ export class FJCanvasUtils {
     private _scale: number = 1;
     private _scaleToFit: number = 1;
     private _dpr: number = window.devicePixelRatio || 1;
+    private _image: HTMLImageElement | null = null;
 
     /**
      * 构造函数
@@ -69,7 +71,36 @@ export class FJCanvasUtils {
     getConfig() {
         return {
             strokeWidth: this._strokeWidth,
+            scale: this._scale,
+            fitScale: this._scaleToFit,
+            isEraser: this._isEraser,
+            isDrawing: this._isDrawing,
+            dpr: this._dpr,
         };
+    }
+
+    /**
+     * 设置画笔颜色
+     * @param {string | CanvasGradient | CanvasPattern} color 颜色
+     */
+    setStrokeColor(color: string | CanvasGradient | CanvasPattern) {
+        this._strokeColor = color;
+    }
+
+    /**
+     * 设置画笔宽度
+     * @param {number} width 宽度
+     */
+    setStrokeWidth(width: number) {
+        this._strokeWidth = width;
+    }
+
+    /**
+     * 设置擦除颜色
+     * @param {string | CanvasPattern} color 颜色
+     */
+    setEraserColor(color: string | CanvasPattern) {
+        this._eraserColor = color;
     }
 
     /**
@@ -120,24 +151,39 @@ export class FJCanvasUtils {
         const offsetX = clientX - left;
         const offsetY = clientY - top;
 
-        this.drawLine(this._lastPoint.x, this._lastPoint.y, offsetX, offsetY, this._strokeColor, this._strokeWidth);
+        this.drawLine(
+            this._lastPoint.x,
+            this._lastPoint.y,
+            offsetX,
+            offsetY,
+            this._strokeColor,
+            this._strokeWidth * this._scale,
+        );
         this._lastPoint = { x: offsetX, y: offsetY };
         this.ctx.globalCompositeOperation = 'source-over';
+        // e.stopPropagation();
     };
+
+    private _drawMouseDown = (e: MouseEvent) => {
+        this._isDrawing = true;
+        const { clientX, clientY } = e;
+        const { left, top } = this.canvas.getBoundingClientRect();
+        this._lastPoint = { x: clientX - left, y: clientY - top };
+        // e.stopPropagation();
+    };
+
+    private _drawMouseUp = () => {
+        this._isDrawing = false;
+        // e.stopPropagation();
+    };
+
     /**
      * 开始绘制直线
      */
     startDrawLine() {
-        this.canvas.addEventListener('mousedown', e => {
-            this._isDrawing = true;
-            const { clientX, clientY } = e;
-            const { left, top } = this.canvas.getBoundingClientRect();
-            this._lastPoint = { x: clientX - left, y: clientY - top };
-        });
+        this.canvas.addEventListener('mousedown', this._drawMouseDown);
 
-        this.canvas.addEventListener('mouseup', () => {
-            this._isDrawing = false;
-        });
+        this.canvas.addEventListener('mouseup', this._drawMouseUp);
 
         this.canvas.addEventListener('mousemove', this._drawLineMove);
     }
@@ -147,37 +193,9 @@ export class FJCanvasUtils {
      */
     stopDrawLine() {
         this._isDrawing = false;
-        this.canvas.removeEventListener('mousedown', () => {
-            this._isDrawing = true;
-        });
-        this.canvas.removeEventListener('mouseup', () => {
-            this._isDrawing = false;
-        });
+        this.canvas.removeEventListener('mousedown', this._drawMouseDown);
+        this.canvas.removeEventListener('mouseup', this._drawMouseUp);
         this.canvas.removeEventListener('mousemove', this._drawLineMove);
-    }
-
-    /**
-     * 设置画笔颜色
-     * @param {string | CanvasGradient | CanvasPattern} color 颜色
-     */
-    setStrokeColor(color: string | CanvasGradient | CanvasPattern) {
-        this._strokeColor = color;
-    }
-
-    /**
-     * 设置画笔宽度
-     * @param {number} width 宽度
-     */
-    setStrokeWidth(width: number) {
-        this._strokeWidth = width;
-    }
-
-    /**
-     * 设置擦除颜色
-     * @param {string | CanvasPattern} color 颜色
-     */
-    setEraserColor(color: string | CanvasPattern) {
-        this._eraserColor = color;
     }
 
     /**
@@ -193,20 +211,24 @@ export class FJCanvasUtils {
         const offsetX = clientX - left;
         const offsetY = clientY - top;
 
-        this.drawLine(offsetX - movementX, offsetY - movementY, offsetX, offsetY, this._eraserColor, this._strokeWidth);
+        this.drawLine(
+            offsetX - movementX,
+            offsetY - movementY,
+            offsetX,
+            offsetY,
+            this._eraserColor,
+            this._strokeWidth * this._scale,
+        );
+        // e.stopPropagation();
     };
 
     /**
      * 开始擦除
      */
     startEraser() {
-        this.canvas.addEventListener('mousedown', () => {
-            this._isDrawing = true;
-        });
+        this.canvas.addEventListener('mousedown', this._drawMouseDown);
 
-        this.canvas.addEventListener('mouseup', () => {
-            this._isDrawing = false;
-        });
+        this.canvas.addEventListener('mouseup', this._drawMouseUp);
 
         this.canvas.addEventListener('mousemove', this._eraserMove);
     }
@@ -242,6 +264,7 @@ export class FJCanvasUtils {
         const scaleX = (this.canvas.width - CANVAS_FIT_PADDING_X * 2 * this._dpr) / (image.naturalWidth * this._dpr);
         const scaleY = (this.canvas.height - CANVAS_FIT_PADDING_Y * 2 * this._dpr) / (image.naturalHeight * this._dpr);
         const scaleToFit = Math.min(scaleX, scaleY);
+
         this._scaleToFit = scaleToFit;
 
         // 计算居中位置（考虑DPR）
@@ -256,6 +279,7 @@ export class FJCanvasUtils {
                 willReadFrequently: true,
             });
             if (!offscreenCtx) throw new Error('Failed to get offscreen context');
+            this.ctx.save();
 
             // 设置离屏画布的缩放以匹配设备像素比
             offscreenCtx.scale(this._dpr, this._dpr);
@@ -270,14 +294,8 @@ export class FJCanvasUtils {
             // 在主画布上绘制高清图片
             this.ctx.drawImage(offscreen, centerX, centerY, scaledWidth, scaledHeight);
 
-            // 创建图案时使用原始大小的画布
-            const patternCanvas = document.createElement('canvas');
-            patternCanvas.width = image.naturalWidth;
-            patternCanvas.height = image.naturalHeight;
-            const patternCtx = patternCanvas.getContext('2d');
-            if (!patternCtx) throw new Error('Failed to get pattern context');
+            this._image = image;
 
-            patternCtx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight);
             return this.ctx.createPattern(this.canvas, 'repeat');
         } catch (error) {
             console.error('Failed to draw image:', error);
@@ -291,8 +309,33 @@ export class FJCanvasUtils {
      */
     setScale(scale: number) {
         this._scale = scale;
-        this.canvas.style.transform = 'scale(' + scale + ')';
+        this.ctx.setTransform(scale, 0, 0, scale, 0, 0);
+        this._redraw();
+        // this.canvas.style.transform = 'scale(' + scale + ')';
     }
+
+    private _redraw() {
+        if (!this._image) return;
+        const ctx = this.ctx;
+
+        ctx.save();
+
+        ctx.clearRect(0, 0, this.canvas.width / this._scale, this.canvas.height / this._scale);
+
+        // 计算原始图片缩放比例
+        const localScale = this._scale * this._scaleToFit;
+        const scaledWidth = this._image.naturalWidth * this._dpr * localScale;
+        const scaledHeight = this._image.naturalHeight * this._dpr * localScale;
+        // 计算居中位置（考虑DPR）
+        const centerX = (this.canvas.width / this._scale - scaledWidth) / 2;
+        const centerY = (this.canvas.height / this._scale - scaledHeight) / 2;
+        this.ctx.drawImage(this._image, centerX, centerY, scaledWidth, scaledHeight);
+
+        const pattern = this.ctx.createPattern(this.canvas, 'repeat');
+        if (pattern) this.setEraserColor(pattern);
+        ctx.restore();
+    }
+
     /**
      * 销毁画布
      */
