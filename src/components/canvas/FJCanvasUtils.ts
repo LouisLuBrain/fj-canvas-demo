@@ -102,6 +102,7 @@ export class FJCanvasUtils {
     private _drawLineMove = (e: MouseEvent) => {
         if (!this._isDrawing) return;
 
+        this.ctx.globalCompositeOperation = 'source-atop';
         const { clientX, clientY } = e;
         const { left, top } = this.canvas.getBoundingClientRect();
         const offsetX = clientX - left;
@@ -109,6 +110,7 @@ export class FJCanvasUtils {
 
         this.drawLine(this._lastPoint.x, this._lastPoint.y, offsetX, offsetY, this._strokeColor, this._strokeWidth);
         this._lastPoint = { x: offsetX, y: offsetY };
+        this.ctx.globalCompositeOperation = 'source-over';
     };
     /**
      * 开始绘制直线
