@@ -96,10 +96,13 @@ const FJCanvasDesk: React.FC<FJCanvasDeskProps> = ({
         const strokeWidth = sdkRef.current?.getConfig()?.strokeWidth ?? 2;
         const dpr = sdkRef.current?.getConfig()?.dpr ?? 1;
         const radius = strokeWidth / 2;
+        const isInEraserMode = sdkRef.current?.getConfig()?.isInEraserMode ?? false;
         return {
             transform: `translate(${position.x - (radius / dpr) * scale}px, ${position.y - (radius / dpr) * scale}px)`,
             width: radius * scale,
             height: radius * scale,
+            border: isInEraserMode ? '1px solid #00f' : '1px solid #fff',
+            backgroundColor: isInEraserMode ? '#fff' : '#00f',
         };
     }, [position.x, position.y]);
 

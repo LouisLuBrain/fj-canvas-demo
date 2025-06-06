@@ -27,6 +27,7 @@ export class FJCanvasUtils {
     private _scaleToFit: number = 1;
     private _dpr: number = window.devicePixelRatio || 1;
     private _image: HTMLImageElement | null = null;
+    private isInEraserMode: boolean = false;
 
     /**
      * 构造函数
@@ -76,6 +77,7 @@ export class FJCanvasUtils {
             isEraser: this._isEraser,
             isDrawing: this._isDrawing,
             dpr: this._dpr,
+            isInEraserMode: this.isInEraserMode,
         };
     }
 
@@ -198,13 +200,26 @@ export class FJCanvasUtils {
         this.canvas.removeEventListener('mousemove', this._drawLineMove);
     }
 
+    private _eraserMouseDown = (e: MouseEvent) => {
+        this._isEraser = true;
+        const { clientX, clientY } = e;
+        const { left, top } = this.canvas.getBoundingClientRect();
+        this._lastPoint = { x: clientX - left, y: clientY - top };
+        // e.stopPropagation();
+    };
+
+    private _eraserMouseUp = () => {
+        this._isEraser = false;
+        // e.stopPropagation();
+    };
+
     /**
      * 擦除移动
      * @private
      * @param {MouseEvent} e 鼠标事件
      */
     private _eraserMove = (e: MouseEvent) => {
-        if (!this._isDrawing) return;
+        if (!this._isEraser) return;
 
         const { clientX, clientY, movementX, movementY } = e;
         const { left, top } = this.canvas.getBoundingClientRect();
@@ -226,9 +241,10 @@ export class FJCanvasUtils {
      * 开始擦除
      */
     startEraser() {
-        this.canvas.addEventListener('mousedown', this._drawMouseDown);
+        this.isInEraserMode = true;
+        this.canvas.addEventListener('mousedown', this._eraserMouseDown);
 
-        this.canvas.addEventListener('mouseup', this._drawMouseUp);
+        this.canvas.addEventListener('mouseup', this._eraserMouseUp);
 
         this.canvas.addEventListener('mousemove', this._eraserMove);
     }
@@ -237,12 +253,13 @@ export class FJCanvasUtils {
      * 停止擦除
      */
     stopEraser() {
-        this._isDrawing = false;
+        this._isEraser = false;
+        this.isInEraserMode = false;
         this.canvas.removeEventListener('mousedown', () => {
-            this._isDrawing = true;
+            this._isEraser = true;
         });
         this.canvas.removeEventListener('mouseup', () => {
-            this._isDrawing = false;
+            this._isEraser = false;
         });
         this.canvas.removeEventListener('mousemove', this._eraserMove);
     }
@@ -340,12 +357,14 @@ export class FJCanvasUtils {
      * 销毁画布
      */
     destroy() {
-        this._isDrawing = false;
         this.setScale(1);
         this.clear();
 
         this.stopDrawLine();
         this.stopEraser();
+
+        this._isDrawing = false;
+        this._isEraser = false;
         // this._strokeColor = DEFAULT_STROKE_COLOR;
         // this._eraserColor = DEFAULT_ERASER_COLOR;
         // TODO: 销毁事件
