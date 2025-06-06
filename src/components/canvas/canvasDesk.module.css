@@ -8,6 +8,9 @@
 
     width: 100%;
     height: 100%;
+
+    /* cursor: none; */
+    overflow: hidden;
 }
 
 .canvas-container {
@@ -22,4 +25,20 @@
     height: 100%;
 
     transform-origin: center center;
+}
+
+.brush-pointer {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    z-index: 99;
+
+    box-sizing: border-box;
+
+    border-radius: 50%;
+
+    opacity: 0.5;
+
+    pointer-events: none;
 }
