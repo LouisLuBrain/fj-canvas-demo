@@ -65,8 +65,7 @@ export default function FJCanvasTool({ onDrawStart, onEraseStart, onStrokeWidthC
                     </button>
                 </div>
             </div>
-
-            <div className={styles['tool-group']}>
+            <div data-expanded={!!currentTool} className={styles['tool-group']}>
                 <div className={styles['tool-bar-title']}>
                     Size
                     <span className={styles['width-value']}>{strokeWidth}</span>

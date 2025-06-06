@@ -24,6 +24,19 @@
 
     width: 100%;
     flex-flow: row wrap;
+
+    transition: height 0.2s ease;
+}
+
+.tool-group[data-expanded='false'] {
+    height: 0;
+
+    overflow: hidden;
+}
+
+.tool-group[data-expanded='true'] {
+    height: 68px;
+    max-height: 100px;
 }
 
 .tool-bar-title {
