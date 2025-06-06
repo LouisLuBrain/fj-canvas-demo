@@ -28,6 +28,8 @@ export class FJCanvasUtils {
     private _dpr: number = window.devicePixelRatio || 1;
     private _image: HTMLImageElement | null = null;
     private isInEraserMode: boolean = false;
+    private _maskCanvas: HTMLCanvasElement | null = null;
+    private _maskCtx: CanvasRenderingContext2D | null = null;
 
     /**
      * 构造函数
@@ -53,20 +55,25 @@ export class FJCanvasUtils {
         this.canvas.style.width = `${width}px`;
         this.canvas.style.height = `${height}px`;
 
-        // this.canvas.style.transformOrigin = 'center center';
-
         // 清空画布
         ctx.clearRect(0, 0, width, height);
 
-        // const scaleX = window.innerWidth / this.canvas.width;
-        // const scaleY = window.innerHeight / this.canvas.height;
-
-        // const scaleToFit = Math.min(scaleX, scaleY);
-        // this.scaleToCover = Math.max(scaleX, scaleY);
-
-        // ctx.scale(scaleToFit, scaleToFit);
-
         this._strokeWidth = defaultConfig?.strokeWidth || DEFAULT_STROKE_WIDTH;
+
+        this._maskCanvas = document.createElement('canvas');
+        this._maskCanvas.width = this.canvas.width;
+        this._maskCanvas.height = this.canvas.height;
+        this._maskCtx = this._maskCanvas.getContext('2d')!;
+        this._maskCtx.globalAlpha = 0.3;
+
+        // document.body.appendChild(this._maskCanvas);
+        // this._maskCanvas.style.position = 'fixed';
+        // this._maskCanvas.style.top = '0';
+        // this._maskCanvas.style.left = '0';
+        // this._maskCanvas.style.width = `${this.canvas.width / 4}px`;
+        // this._maskCanvas.style.height = `${this.canvas.height / 4}px`;
+        // this._maskCanvas.style.pointerEvents = 'none';
+        // this._maskCanvas.style.zIndex = '1000';
     }
 
     getConfig() {
@@ -110,6 +117,7 @@ export class FJCanvasUtils {
      */
     clear() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this._maskCtx?.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
     /**
@@ -129,14 +137,19 @@ export class FJCanvasUtils {
         color: string | CanvasGradient | CanvasPattern = '#000000',
         lineWidth: number = 1,
     ) {
-        this.ctx.strokeStyle = color;
-        this.ctx.lineWidth = 0;
-        this.ctx.lineCap = 'round';
-
-        this.ctx.beginPath();
-        this.ctx.arc((x1 / this._scale) * this._dpr, (y1 / this._scale) * this._dpr, lineWidth / 2, 0, Math.PI * 2);
-        this.ctx.fillStyle = color;
-        this.ctx.fill();
+        if (this._maskCtx && this._maskCanvas) {
+            this._maskCtx.strokeStyle = color;
+            this._maskCtx.fillStyle = color;
+            this._maskCtx.beginPath();
+            this._maskCtx.arc(
+                (x1 / this._scale) * this._dpr,
+                (y1 / this._scale) * this._dpr,
+                lineWidth / 2,
+                0,
+                Math.PI * 2,
+            );
+            this._maskCtx.fill();
+        }
     }
 
     /**
@@ -145,9 +158,10 @@ export class FJCanvasUtils {
      * @param {MouseEvent} e 鼠标事件
      */
     private _drawLineMove = (e: MouseEvent) => {
-        if (!this._isDrawing) return;
+        if (!this._isDrawing || !this._maskCtx) return;
 
-        this.ctx.globalCompositeOperation = 'source-atop';
+        // this._maskCtx.globalAlpha = 0.1;
+        this._maskCtx.globalCompositeOperation = 'source-over';
         const { clientX, clientY } = e;
         const { left, top } = this.canvas.getBoundingClientRect();
         const offsetX = clientX - left;
@@ -162,7 +176,9 @@ export class FJCanvasUtils {
             this._strokeWidth * this._scale,
         );
         this._lastPoint = { x: offsetX, y: offsetY };
-        this.ctx.globalCompositeOperation = 'source-over';
+        this._maskCtx.globalCompositeOperation = 'source-over';
+        // this._maskCtx.globalAlpha = 1;
+        this._redraw();
         // e.stopPropagation();
     };
 
@@ -171,7 +187,7 @@ export class FJCanvasUtils {
         const { clientX, clientY } = e;
         const { left, top } = this.canvas.getBoundingClientRect();
         this._lastPoint = { x: clientX - left, y: clientY - top };
-        // e.stopPropagation();
+        this._drawLineMove(e);
     };
 
     private _drawMouseUp = () => {
@@ -205,7 +221,7 @@ export class FJCanvasUtils {
         const { clientX, clientY } = e;
         const { left, top } = this.canvas.getBoundingClientRect();
         this._lastPoint = { x: clientX - left, y: clientY - top };
-        // e.stopPropagation();
+        this._eraserMove(e);
     };
 
     private _eraserMouseUp = () => {
@@ -219,8 +235,9 @@ export class FJCanvasUtils {
      * @param {MouseEvent} e 鼠标事件
      */
     private _eraserMove = (e: MouseEvent) => {
-        if (!this._isEraser) return;
+        if (!this._isEraser || !this._maskCtx) return;
 
+        this._maskCtx.globalCompositeOperation = 'destination-out';
         const { clientX, clientY, movementX, movementY } = e;
         const { left, top } = this.canvas.getBoundingClientRect();
         const offsetX = clientX - left;
@@ -234,6 +251,8 @@ export class FJCanvasUtils {
             this._eraserColor,
             this._strokeWidth * this._scale,
         );
+        this._maskCtx.globalCompositeOperation = 'source-over';
+        this._redraw();
         // e.stopPropagation();
     };
 
@@ -311,6 +330,11 @@ export class FJCanvasUtils {
             // 在主画布上绘制高清图片
             this.ctx.drawImage(offscreen, centerX, centerY, scaledWidth, scaledHeight);
 
+            // if (this._maskCtx) {
+            //     this._maskCtx.fillStyle = '#fffffff0';
+            //     this._maskCtx.fillRect(centerX, centerY, scaledWidth, scaledHeight);
+            // }
+
             this._image = image;
 
             return this.ctx.createPattern(this.canvas, 'repeat');
@@ -347,6 +371,12 @@ export class FJCanvasUtils {
         const centerX = (this.canvas.width / this._scale - scaledWidth) / 2;
         const centerY = (this.canvas.height / this._scale - scaledHeight) / 2;
         this.ctx.drawImage(this._image, centerX, centerY, scaledWidth, scaledHeight);
+
+        if (this._maskCanvas) {
+            this.ctx.globalCompositeOperation = 'destination-in';
+            this.ctx.drawImage(this._maskCanvas, 0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.globalCompositeOperation = 'source-over';
+        }
 
         const pattern = this.ctx.createPattern(this.canvas, 'repeat');
         if (pattern) this.setEraserColor(pattern);
