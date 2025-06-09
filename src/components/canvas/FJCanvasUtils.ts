@@ -123,6 +123,8 @@ export class FJCanvasUtils {
      * 清除整个画布
      */
     clear() {
+        this.ctx.resetTransform();
+        this._maskCtx?.resetTransform();
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this._maskCtx?.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
@@ -306,6 +308,7 @@ export class FJCanvasUtils {
         const centerY = (this.canvas.height - scaledHeight) / 2;
 
         this._centerPoint = { x: centerX, y: centerY };
+        console.log('=> ~ FJCanvasUtils ~ drawImage ~ this._centerPoint:', this._centerPoint);
 
         if (this._maskCanvas) {
             this._maskCanvas.width = scaledWidth;
@@ -318,20 +321,22 @@ export class FJCanvasUtils {
                 willReadFrequently: true,
             });
             if (!offscreenCtx) throw new Error('Failed to get offscreen context');
+
+            // 清除主画布
+            this.clear();
+
             this.ctx.save();
 
-            // 设置离屏画布的缩放以匹配设备像素比
-            offscreenCtx.scale(this._dpr, this._dpr);
+            this.ctx.setTransform(scaleToFit, 0, 0, scaleToFit, centerX, centerY);
+            this._maskCtx?.setTransform(scaleToFit, 0, 0, scaleToFit, centerX, centerY);
 
             // 在离屏画布上绘制原始图片
             offscreenCtx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight);
 
-            // 清除主画布
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.setScale(1);
-
             // 在主画布上绘制高清图片
-            this.ctx.drawImage(offscreen, centerX, centerY, scaledWidth, scaledHeight);
+            this.ctx.drawImage(offscreen, 0, 0);
+
+            this.ctx.restore();
 
             // if (this._maskCtx && this._maskCanvas) {
             //     this._maskCtx.fillStyle = '#00900ff0';
@@ -353,21 +358,18 @@ export class FJCanvasUtils {
      */
     setScale(scale: number) {
         this._scale = scale;
-        this.ctx.setTransform(scale, 0, 0, scale, 0, 0);
-        this._maskCtx?.setTransform(scale, 0, 0, scale, 0, 0);
         this._redraw();
-        // this.canvas.style.transform = 'scale(' + scale + ')';
+        console.log(this.ctx.getTransform());
     }
 
     private _redraw() {
         if (!this._image) return;
         const ctx = this.ctx;
+        this.clear();
 
         ctx.save();
 
-        ctx.clearRect(0, 0, this.canvas.width / this._scale, this.canvas.height / this._scale);
-
-        // 计算原始图片缩放比例
+        // TODO: fix redraw center point calc 更新中心点偏移
         const localScale = this._scale * this._scaleToFit;
         const scaledWidth = this._image.naturalWidth * this._dpr * localScale;
         const scaledHeight = this._image.naturalHeight * this._dpr * localScale;
@@ -376,13 +378,22 @@ export class FJCanvasUtils {
         const centerY = (this.canvas.height / this._scale - scaledHeight) / 2;
         this._centerPoint = { x: centerX, y: centerY };
 
-        this.ctx.drawImage(this._image, centerX, centerY, scaledWidth, scaledHeight);
+        console.log('=> ~ FJCanvasUtils ~ drawImage ~ this._centerPoint:', this._centerPoint);
+
+        this.ctx.setTransform(localScale, 0, 0, localScale, centerX, centerY);
+
+        if (this._maskCtx) {
+            this._maskCtx.setTransform(localScale, 0, 0, localScale, centerX, centerY);
+        }
+        // 绘制图片
+
+        this.ctx.drawImage(this._image, 0, 0);
 
         if (this._maskCanvas && this._maskCtx) {
             // 绘制遮罩层 使用source-atop 和 globalAlpha 来实现遮罩层
             this.ctx.globalAlpha = 0.5;
             this.ctx.globalCompositeOperation = 'source-atop';
-            this.ctx.drawImage(this._maskCanvas, centerX, centerY, scaledWidth, scaledHeight);
+            this.ctx.drawImage(this._maskCanvas, 0, 0);
 
             // 恢复全局透明度
             this.ctx.globalAlpha = 1;
