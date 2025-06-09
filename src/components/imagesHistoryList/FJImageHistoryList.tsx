@@ -1,16 +1,22 @@
 import styles from './imageHistoryList.module.css';
 
-import image1 from '../../assets/alexander-mass-ohVkrmTwirg-unsplash.jpg';
+import image1 from '../../assets/luca-ercolani-pPLKOwxVmfE-unsplash.jpg';
+import image3 from '../../assets/alexander-mass-ohVkrmTwirg-unsplash.jpg';
 import image2 from '../../assets/andrey-k-FUKidTAPUdk-unsplash.jpg';
-import image3 from '../../assets/luca-ercolani-pPLKOwxVmfE-unsplash.jpg';
 import image4 from '../../assets/anna-spoljar-dfaCZjYYNTE-unsplash.jpg';
 import image5 from '../../assets/daniel-akselrod-GRgfv49Nf-M-unsplash.jpg';
+import image6 from '../../assets/jorgen-hendriksen-BVbfrXuNGaQ-unsplash.jpg';
 
 const IMAGE_HISTORY_LIST = [
-    { imageURL: image1, id: crypto.randomUUID() },
+    { imageURL: image6, id: crypto.randomUUID() },
     { imageURL: image2, id: crypto.randomUUID() },
     { imageURL: image3, id: crypto.randomUUID() },
+    { imageURL: image5, id: crypto.randomUUID() },
+    { imageURL: image6, id: crypto.randomUUID() },
+    { imageURL: image1, id: crypto.randomUUID() },
     { imageURL: image4, id: crypto.randomUUID() },
+    { imageURL: image3, id: crypto.randomUUID() },
+    { imageURL: image6, id: crypto.randomUUID() },
     { imageURL: image5, id: crypto.randomUUID() },
 ];
 

@@ -6,37 +6,31 @@
 }
 
 .images-history-list {
-    display: flex;
-    flex-flow: row wrap;
-
-    gap: 16px;
-
-    width: 100%;
-    padding: 16px 0;
+    column-count: 3; /* 几列 */
+    column-gap: 16px;
 }
 
 .images-history-list-item {
-    flex: 1 0 auto;
-
-    width: calc((100% - 32px) / 3);
-    min-width: 200px;
+    margin-bottom: 16px;
 
     border-radius: 8px;
 
-    background-color: #f7f7f8;
+    break-inside: avoid;
 
-    transition: transform 0.2s ease;
+    transition: all 0.3s ease;
 }
 
 .images-history-list-item:hover {
-    box-shadow: 0 4px 12px rgb(0 0 0 / 10%);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 20%);
 
-    transform: translateY(-2px);
+    transform: scale(1.01);
 }
 
 .images-history-list-item-image {
+    display: block;
+
     width: 100%;
     height: auto;
-    object-fit: cover;
-    vertical-align: middle;
+
+    border-radius: 4px;
 }
