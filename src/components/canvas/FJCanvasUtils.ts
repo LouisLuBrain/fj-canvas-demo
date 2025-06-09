@@ -145,16 +145,12 @@ export class FJCanvasUtils {
         if (this._maskCtx && this._maskCanvas) {
             const inv = this._maskCtx.getTransform().inverse();
             const logicalPoint = new DOMPoint(x1 * this._dpr, y1 * this._dpr).matrixTransform(inv);
-
-            const { x: centerX, y: centerY } = this._centerPoint;
-
-            const _x = logicalPoint.x - centerX;
-            const _y = logicalPoint.y - centerY;
+            console.log('=> ~ FJCanvasUtils ~ logicalPoint:', logicalPoint);
 
             this._maskCtx.strokeStyle = color;
             this._maskCtx.fillStyle = color;
             this._maskCtx.beginPath();
-            this._maskCtx.arc(_x, _y, lineWidth / 2 / this._scale, 0, Math.PI * 2);
+            this._maskCtx.arc(logicalPoint.x, logicalPoint.y, lineWidth / 2 / this._scale, 0, Math.PI * 2);
             this._maskCtx.fill();
         }
     }
@@ -308,7 +304,6 @@ export class FJCanvasUtils {
         const centerY = (this.canvas.height - scaledHeight) / 2;
 
         this._centerPoint = { x: centerX, y: centerY };
-        console.log('=> ~ FJCanvasUtils ~ drawImage ~ this._centerPoint:', this._centerPoint);
 
         if (this._maskCanvas) {
             this._maskCanvas.width = scaledWidth;
@@ -338,10 +333,10 @@ export class FJCanvasUtils {
 
             this.ctx.restore();
 
-            // if (this._maskCtx && this._maskCanvas) {
-            //     this._maskCtx.fillStyle = '#00900ff0';
-            //     this._maskCtx.fillRect(0, 0, this._maskCanvas.width, this._maskCanvas.height);
-            // }
+            if (this._maskCtx && this._maskCanvas) {
+                this._maskCtx.fillStyle = '#00900ff0';
+                this._maskCtx.fillRect(0, 0, this._maskCanvas.width, this._maskCanvas.height);
+            }
 
             this._image = image;
 
@@ -359,7 +354,6 @@ export class FJCanvasUtils {
     setScale(scale: number) {
         this._scale = scale;
         this._redraw();
-        console.log(this.ctx.getTransform());
     }
 
     private _redraw() {
@@ -377,8 +371,6 @@ export class FJCanvasUtils {
         const centerX = (this.canvas.width - scaledWidth) / 2;
         const centerY = (this.canvas.height - scaledHeight) / 2;
         this._centerPoint = { x: centerX, y: centerY };
-
-        console.log('=> ~ FJCanvasUtils ~ drawImage ~ this._centerPoint:', this._centerPoint);
 
         this.ctx.setTransform(localScale, 0, 0, localScale, centerX, centerY);
 
