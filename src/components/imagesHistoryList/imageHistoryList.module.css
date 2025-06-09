@@ -2,12 +2,16 @@
     width: 100%;
     height: 100%;
 
+    /* padding: 16px; */
+
     overflow-y: hidden;
 }
 
 .images-history-list {
     column-count: 3; /* 几列 */
     column-gap: 16px;
+
+    margin: 16px;
 }
 
 .images-history-list-item {
@@ -33,4 +37,6 @@
     height: auto;
 
     border-radius: 4px;
+
+    cursor: pointer;
 }
