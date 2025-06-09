@@ -73,7 +73,6 @@ export class FJCanvasUtils {
         this._maskCanvas.width = this.canvas.width;
         this._maskCanvas.height = this.canvas.height;
         this._maskCtx = this._maskCanvas.getContext('2d')!;
-        this._maskCtx.globalAlpha = 0.3;
 
         // document.body.appendChild(this._maskCanvas);
         // this._maskCanvas.style.position = 'fixed';
@@ -173,7 +172,6 @@ export class FJCanvasUtils {
     private _drawLineMove = (e: MouseEvent) => {
         if (!this._isDrawing || !this._maskCtx) return;
 
-        // this._maskCtx.globalAlpha = 0.1;
         this._maskCtx.globalCompositeOperation = 'source-over';
         const { clientX, clientY } = e;
         const { left, top } = this.canvas.getBoundingClientRect();
@@ -190,6 +188,7 @@ export class FJCanvasUtils {
         );
         this._lastPoint = { x: offsetX, y: offsetY };
         this._maskCtx.globalCompositeOperation = 'source-over';
+
         this._redraw();
     };
 
@@ -341,11 +340,11 @@ export class FJCanvasUtils {
             // 在主画布上绘制高清图片
             this.ctx.drawImage(offscreen, centerX, centerY, scaledWidth, scaledHeight);
 
-            if (this._maskCtx) {
-                this._maskCtx.globalAlpha = 0.5;
-                // this._maskCtx.fillStyle = '#ffffff00';
-                // this._maskCtx.fillRect(centerX, centerY, scaledWidth, scaledHeight);
-            }
+            // if (this._maskCtx) {
+            // this._maskCtx.globalAlpha = 0.5;
+            // this._maskCtx.fillStyle = '#ffffff00';
+            // this._maskCtx.fillRect(centerX, centerY, scaledWidth, scaledHeight);
+            // }
 
             this._image = image;
 
@@ -385,8 +384,10 @@ export class FJCanvasUtils {
         this.ctx.drawImage(this._image, centerX, centerY, scaledWidth, scaledHeight);
 
         if (this._maskCanvas) {
-            this.ctx.globalCompositeOperation = 'source-over';
+            this.ctx.globalAlpha = 0.5;
+            this.ctx.globalCompositeOperation = 'source-atop';
             this.ctx.drawImage(this._maskCanvas, 0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.globalAlpha = 1;
             this.ctx.globalCompositeOperation = 'source-over';
         }
 
