@@ -32,39 +32,32 @@ export default function FJAIObjectRemoveContainer() {
         // 可以在这里添加错误处理逻辑，比如显示错误提示等
     }, []);
 
-    const handleRemoveObject = useCallback(() => {
-        if (!sdk || !canvas) return;
-
-        try {
-            // TODO: 获取画布数据
-            const imageData = canvas.toDataURL('image/png');
-            // TODO: 调用移除对象的API
-            console.log('Removing object with image data:', imageData);
-        } catch (err) {
-            console.error('Failed to remove object:', err);
-            setError(err as Error);
-        }
-    }, [sdk, canvas]);
-
     const handleDrawStart = useCallback(() => {
-        console.log('LOG ===> handleDrawStart');
         sdk?.stopEraser();
         sdk?.startDrawLine();
     }, [sdk]);
 
     const handleEraseStart = useCallback(() => {
-        console.log('LOG ===> handleEraseStart');
         sdk?.stopDrawLine();
         sdk?.startEraser();
     }, [sdk]);
 
     const handleStrokeWidthChange = useCallback(
         (width: number) => {
-            console.log('LOG ===> handleStrokeWidthChange', width);
             sdk?.setStrokeWidth(width);
         },
         [sdk],
     );
+
+    const handleRemoveObject = useCallback(() => {
+        if (!sdk || !canvas) return;
+        const imageData = sdk.exportMaskData();
+        if (!imageData) return;
+        const link = document.createElement('a');
+        link.href = imageData;
+        link.download = 'mask.jpg';
+        link.click();
+    }, [sdk, canvas]);
 
     if (error) {
         return <div>Sorry, an error occurred: {error.message}</div>;

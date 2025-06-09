@@ -384,9 +384,11 @@ export class FJCanvasUtils {
         this.ctx.drawImage(this._image, centerX, centerY, scaledWidth, scaledHeight);
 
         if (this._maskCanvas) {
+            // 绘制遮罩层 使用source-atop 和 globalAlpha 来实现遮罩层
             this.ctx.globalAlpha = 0.5;
             this.ctx.globalCompositeOperation = 'source-atop';
             this.ctx.drawImage(this._maskCanvas, 0, 0, this.canvas.width, this.canvas.height);
+            // 恢复全局透明度
             this.ctx.globalAlpha = 1;
             this.ctx.globalCompositeOperation = 'source-over';
         }
@@ -411,5 +413,11 @@ export class FJCanvasUtils {
         // this._strokeColor = DEFAULT_STROKE_COLOR;
         // this._eraserColor = DEFAULT_ERASER_COLOR;
         // TODO: 销毁事件
+    }
+
+    exportMaskData(): string | null {
+        if (!this._maskCtx) return null;
+        const imageData = this._maskCanvas?.toDataURL('image/jpeg');
+        return imageData ?? null;
     }
 }
