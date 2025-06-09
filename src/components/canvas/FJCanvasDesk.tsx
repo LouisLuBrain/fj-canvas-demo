@@ -25,6 +25,7 @@ const FJCanvasDesk: React.FC<FJCanvasDeskProps> = ({
     const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     const [shouldShowBrushPointer, setShouldShowBrushPointer] = useState(false);
 
+    // 初始化画布
     useLayoutEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas || !image) return;
@@ -52,11 +53,13 @@ const FJCanvasDesk: React.FC<FJCanvasDeskProps> = ({
         };
     }, [image, onCanvasReady, onSDKReady, onError]);
 
+    // 缩放画布
     const handleScaleChange = useCallback((scale: number) => {
         if (!sdkRef.current) return;
         sdkRef.current.setScale(scale / 100);
     }, []);
 
+    // 画笔指针
     useEffect(() => {
         if (!canvasRef.current) return;
         if (!canvasContainerRef.current) return;
@@ -91,6 +94,7 @@ const FJCanvasDesk: React.FC<FJCanvasDeskProps> = ({
         });
     };
 
+    // 画笔指针样式
     const brushPointerStyle = useMemo(() => {
         const scale = sdkRef.current?.getConfig()?.scale ?? 1;
         const strokeWidth = sdkRef.current?.getConfig()?.strokeWidth ?? 2;

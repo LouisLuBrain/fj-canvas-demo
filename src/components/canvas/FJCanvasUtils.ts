@@ -9,6 +9,15 @@ interface DefaultConfig {
     strokeWidth?: number;
 }
 
+export interface FJCanvasUtilsSnapshot extends DefaultConfig {
+    scale?: number;
+    fitScale?: number;
+    isEraser?: boolean;
+    isDrawing?: boolean;
+    dpr?: number;
+    isInEraserMode?: boolean;
+}
+
 /**
  * 画布SDK
  * @class
@@ -76,7 +85,11 @@ export class FJCanvasUtils {
         // this._maskCanvas.style.zIndex = '1000';
     }
 
-    getConfig() {
+    /**
+     * 获取配置
+     * @returns {FJCanvasUtilsSnapshot} 配置
+     */
+    getConfig(): FJCanvasUtilsSnapshot {
         return {
             strokeWidth: this._strokeWidth,
             scale: this._scale,
@@ -177,9 +190,7 @@ export class FJCanvasUtils {
         );
         this._lastPoint = { x: offsetX, y: offsetY };
         this._maskCtx.globalCompositeOperation = 'source-over';
-        // this._maskCtx.globalAlpha = 1;
         this._redraw();
-        // e.stopPropagation();
     };
 
     private _drawMouseDown = (e: MouseEvent) => {
@@ -330,10 +341,11 @@ export class FJCanvasUtils {
             // 在主画布上绘制高清图片
             this.ctx.drawImage(offscreen, centerX, centerY, scaledWidth, scaledHeight);
 
-            // if (this._maskCtx) {
-            //     this._maskCtx.fillStyle = '#fffffff0';
-            //     this._maskCtx.fillRect(centerX, centerY, scaledWidth, scaledHeight);
-            // }
+            if (this._maskCtx) {
+                this._maskCtx.globalAlpha = 0.5;
+                // this._maskCtx.fillStyle = '#ffffff00';
+                // this._maskCtx.fillRect(centerX, centerY, scaledWidth, scaledHeight);
+            }
 
             this._image = image;
 
@@ -373,7 +385,7 @@ export class FJCanvasUtils {
         this.ctx.drawImage(this._image, centerX, centerY, scaledWidth, scaledHeight);
 
         if (this._maskCanvas) {
-            this.ctx.globalCompositeOperation = 'destination-in';
+            this.ctx.globalCompositeOperation = 'source-over';
             this.ctx.drawImage(this._maskCanvas, 0, 0, this.canvas.width, this.canvas.height);
             this.ctx.globalCompositeOperation = 'source-over';
         }
