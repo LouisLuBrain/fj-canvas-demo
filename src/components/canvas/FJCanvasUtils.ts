@@ -9,6 +9,11 @@ interface DefaultConfig {
     strokeWidth?: number;
 }
 
+interface Point {
+    x: number;
+    y: number;
+}
+
 export interface FJCanvasUtilsSnapshot extends DefaultConfig {
     scale?: number;
     fitScale?: number;
@@ -31,7 +36,7 @@ export class FJCanvasUtils {
     private _strokeColor: string | CanvasGradient | CanvasPattern = DEFAULT_STROKE_COLOR;
     private _strokeWidth: number = DEFAULT_STROKE_WIDTH;
     private _eraserColor: string | CanvasGradient | CanvasPattern = DEFAULT_ERASER_COLOR;
-    private _lastPoint: { x: number; y: number } = { x: 0, y: 0 };
+    private _lastPoint: Point = { x: 0, y: 0 };
     private _scale: number = 1;
     private _scaleToFit: number = 1;
     private _dpr: number = window.devicePixelRatio || 1;
@@ -39,6 +44,7 @@ export class FJCanvasUtils {
     private isInEraserMode: boolean = false;
     private _maskCanvas: HTMLCanvasElement | null = null;
     private _maskCtx: CanvasRenderingContext2D | null = null;
+    private _centerPoint: Point = { x: 0, y: 0 };
 
     /**
      * 构造函数
@@ -70,18 +76,7 @@ export class FJCanvasUtils {
         this._strokeWidth = defaultConfig?.strokeWidth || DEFAULT_STROKE_WIDTH;
 
         this._maskCanvas = document.createElement('canvas');
-        this._maskCanvas.width = this.canvas.width;
-        this._maskCanvas.height = this.canvas.height;
         this._maskCtx = this._maskCanvas.getContext('2d')!;
-
-        // document.body.appendChild(this._maskCanvas);
-        // this._maskCanvas.style.position = 'fixed';
-        // this._maskCanvas.style.top = '0';
-        // this._maskCanvas.style.left = '0';
-        // this._maskCanvas.style.width = `${this.canvas.width / 4}px`;
-        // this._maskCanvas.style.height = `${this.canvas.height / 4}px`;
-        // this._maskCanvas.style.pointerEvents = 'none';
-        // this._maskCanvas.style.zIndex = '1000';
     }
 
     /**
@@ -134,32 +129,30 @@ export class FJCanvasUtils {
 
     /**
      * 绘制直线
-     * @param {number} x1 起点X坐标
-     * @param {number} y1 起点Y坐标
-     * @param {number} x2 终点X坐标
-     * @param {number} y2 终点Y坐标
+     * @param {number} x1 mouse x
+     * @param {number} y1 mouse y
      * @param {string} color
      * @param {number} lineWidth
      */
     drawLine(
         x1: number,
         y1: number,
-        x2: number,
-        y2: number,
         color: string | CanvasGradient | CanvasPattern = '#000000',
         lineWidth: number = 1,
     ) {
         if (this._maskCtx && this._maskCanvas) {
+            const inv = this._maskCtx.getTransform().inverse();
+            const logicalPoint = new DOMPoint(x1 * this._dpr, y1 * this._dpr).matrixTransform(inv);
+
+            const { x: centerX, y: centerY } = this._centerPoint;
+
+            const _x = logicalPoint.x - centerX;
+            const _y = logicalPoint.y - centerY;
+
             this._maskCtx.strokeStyle = color;
             this._maskCtx.fillStyle = color;
             this._maskCtx.beginPath();
-            this._maskCtx.arc(
-                (x1 / this._scale) * this._dpr,
-                (y1 / this._scale) * this._dpr,
-                lineWidth / 2,
-                0,
-                Math.PI * 2,
-            );
+            this._maskCtx.arc(_x, _y, lineWidth / 2 / this._scale, 0, Math.PI * 2);
             this._maskCtx.fill();
         }
     }
@@ -170,24 +163,23 @@ export class FJCanvasUtils {
      * @param {MouseEvent} e 鼠标事件
      */
     private _drawLineMove = (e: MouseEvent) => {
-        if (!this._isDrawing || !this._maskCtx) return;
+        if (!this._isDrawing || !this._maskCtx || !this._maskCanvas) return;
 
         this._maskCtx.globalCompositeOperation = 'source-over';
         const { clientX, clientY } = e;
         const { left, top } = this.canvas.getBoundingClientRect();
-        const offsetX = clientX - left;
-        const offsetY = clientY - top;
+        const x = clientX - left;
+        const y = clientY - top;
 
-        this.drawLine(
-            this._lastPoint.x,
-            this._lastPoint.y,
-            offsetX,
-            offsetY,
-            this._strokeColor,
-            this._strokeWidth * this._scale,
-        );
-        this._lastPoint = { x: offsetX, y: offsetY };
+        this.drawLine(x, y, this._strokeColor, this._strokeWidth);
+        this._lastPoint = { x, y };
         this._maskCtx.globalCompositeOperation = 'source-over';
+
+        this.ctx.strokeStyle = this._strokeColor;
+        this.ctx.fillStyle = this._strokeColor;
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, this._strokeWidth / 2, 0, Math.PI * 2);
+        this.ctx.fill();
 
         this._redraw();
     };
@@ -245,25 +237,19 @@ export class FJCanvasUtils {
      * @param {MouseEvent} e 鼠标事件
      */
     private _eraserMove = (e: MouseEvent) => {
-        if (!this._isEraser || !this._maskCtx) return;
+        if (!this._isEraser || !this._maskCtx || !this._maskCanvas) return;
 
         this._maskCtx.globalCompositeOperation = 'destination-out';
-        const { clientX, clientY, movementX, movementY } = e;
+        const { clientX, clientY } = e;
         const { left, top } = this.canvas.getBoundingClientRect();
-        const offsetX = clientX - left;
-        const offsetY = clientY - top;
+        const x = clientX - left;
+        const y = clientY - top;
 
-        this.drawLine(
-            offsetX - movementX,
-            offsetY - movementY,
-            offsetX,
-            offsetY,
-            this._eraserColor,
-            this._strokeWidth * this._scale,
-        );
+        this.drawLine(x, y, this._strokeColor, this._strokeWidth);
+        this._lastPoint = { x, y };
         this._maskCtx.globalCompositeOperation = 'source-over';
+
         this._redraw();
-        // e.stopPropagation();
     };
 
     /**
@@ -319,6 +305,13 @@ export class FJCanvasUtils {
         const centerX = (this.canvas.width - scaledWidth) / 2;
         const centerY = (this.canvas.height - scaledHeight) / 2;
 
+        this._centerPoint = { x: centerX, y: centerY };
+
+        if (this._maskCanvas) {
+            this._maskCanvas.width = scaledWidth;
+            this._maskCanvas.height = scaledHeight;
+        }
+
         try {
             const offscreenCtx = offscreen.getContext('2d', {
                 alpha: true,
@@ -340,10 +333,9 @@ export class FJCanvasUtils {
             // 在主画布上绘制高清图片
             this.ctx.drawImage(offscreen, centerX, centerY, scaledWidth, scaledHeight);
 
-            // if (this._maskCtx) {
-            // this._maskCtx.globalAlpha = 0.5;
-            // this._maskCtx.fillStyle = '#ffffff00';
-            // this._maskCtx.fillRect(centerX, centerY, scaledWidth, scaledHeight);
+            // if (this._maskCtx && this._maskCanvas) {
+            //     this._maskCtx.fillStyle = '#00900ff0';
+            //     this._maskCtx.fillRect(0, 0, this._maskCanvas.width, this._maskCanvas.height);
             // }
 
             this._image = image;
@@ -362,6 +354,7 @@ export class FJCanvasUtils {
     setScale(scale: number) {
         this._scale = scale;
         this.ctx.setTransform(scale, 0, 0, scale, 0, 0);
+        this._maskCtx?.setTransform(scale, 0, 0, scale, 0, 0);
         this._redraw();
         // this.canvas.style.transform = 'scale(' + scale + ')';
     }
@@ -381,13 +374,16 @@ export class FJCanvasUtils {
         // 计算居中位置（考虑DPR）
         const centerX = (this.canvas.width / this._scale - scaledWidth) / 2;
         const centerY = (this.canvas.height / this._scale - scaledHeight) / 2;
+        this._centerPoint = { x: centerX, y: centerY };
+
         this.ctx.drawImage(this._image, centerX, centerY, scaledWidth, scaledHeight);
 
-        if (this._maskCanvas) {
+        if (this._maskCanvas && this._maskCtx) {
             // 绘制遮罩层 使用source-atop 和 globalAlpha 来实现遮罩层
             this.ctx.globalAlpha = 0.5;
             this.ctx.globalCompositeOperation = 'source-atop';
-            this.ctx.drawImage(this._maskCanvas, 0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.drawImage(this._maskCanvas, centerX, centerY, scaledWidth, scaledHeight);
+
             // 恢复全局透明度
             this.ctx.globalAlpha = 1;
             this.ctx.globalCompositeOperation = 'source-over';
