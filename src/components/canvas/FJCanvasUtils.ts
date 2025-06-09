@@ -369,13 +369,13 @@ export class FJCanvasUtils {
 
         ctx.save();
 
-        // TODO: fix redraw center point calc 更新中心点偏移
+        // 更新中心点偏移
         const localScale = this._scale * this._scaleToFit;
         const scaledWidth = this._image.naturalWidth * this._dpr * localScale;
         const scaledHeight = this._image.naturalHeight * this._dpr * localScale;
         // 计算居中位置（考虑DPR）
-        const centerX = (this.canvas.width / this._scale - scaledWidth) / 2;
-        const centerY = (this.canvas.height / this._scale - scaledHeight) / 2;
+        const centerX = (this.canvas.width - scaledWidth) / 2;
+        const centerY = (this.canvas.height - scaledHeight) / 2;
         this._centerPoint = { x: centerX, y: centerY };
 
         console.log('=> ~ FJCanvasUtils ~ drawImage ~ this._centerPoint:', this._centerPoint);
