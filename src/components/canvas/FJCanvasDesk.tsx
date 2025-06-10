@@ -8,19 +8,19 @@ import styles from './canvasDesk.module.css';
 interface FJCanvasDeskProps {
     image?: HTMLImageElement;
     onCanvasReady?: (canvas: HTMLCanvasElement) => void;
-    onSDKReady?: (sdk: FJCanvasUtils) => void;
-    onError?: (error: Error) => void;
+    canvasSDK?: FJCanvasUtils | null;
+    onScaleChange?: (scale: number) => void;
 }
 
 const FJCanvasDesk: React.FC<FJCanvasDeskProps> = ({
     image,
     onCanvasReady,
-    onSDKReady,
-    onError,
+    canvasSDK,
+    onScaleChange,
 }: FJCanvasDeskProps) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const sdkRef = useRef<FJCanvasUtils | null>(null);
     const canvasContainerRef = useRef<HTMLDivElement>(null);
+    const [scale, setScale] = useState(100);
 
     const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     const [shouldShowBrushPointer, setShouldShowBrushPointer] = useState(false);
@@ -31,39 +31,22 @@ const FJCanvasDesk: React.FC<FJCanvasDeskProps> = ({
         if (!canvas || !image) return;
 
         onCanvasReady?.(canvas);
-
-        let sdk: FJCanvasUtils | null = null;
-
-        try {
-            sdk = new FJCanvasUtils(canvas, canvas.clientWidth, canvas.clientHeight, sdkRef.current?.getConfig());
-            sdkRef.current = sdk;
-            onSDKReady?.(sdk);
-
-            sdk.clear();
-            sdk.drawImage(image);
-        } catch (error) {
-            console.error(error);
-            onError?.(error as Error);
-            return;
-        }
-
-        return () => {
-            sdk?.destroy();
-        };
-    }, [image, onCanvasReady, onSDKReady, onError]);
+    }, [image, onCanvasReady]);
 
     // 缩放画布
-    const handleScaleChange = useCallback((scale: number) => {
-        if (!sdkRef.current) return;
-        sdkRef.current.setScale(scale / 100);
-    }, []);
+    const handleScaleChange = useCallback(
+        (scale: number) => {
+            setScale(scale);
+            onScaleChange?.(scale);
+        },
+        [onScaleChange],
+    );
 
     // 画笔指针
     useEffect(() => {
         if (!canvasRef.current) return;
         if (!canvasContainerRef.current) return;
         const canvasContainer = canvasContainerRef.current;
-        // const canvas = canvasRef.current;
 
         canvasContainer.addEventListener('mouseenter', drawBrushPointer);
 
@@ -95,12 +78,12 @@ const FJCanvasDesk: React.FC<FJCanvasDeskProps> = ({
 
     // 画笔指针样式
     const brushPointerStyle = useMemo(() => {
-        const scale = sdkRef.current?.getConfig()?.scale ?? 1;
+        const scale = canvasSDK?.getConfig()?.scale ?? 1;
 
-        const strokeWidth = sdkRef.current?.getConfig()?.strokeWidth ?? 2;
-        const dpr = sdkRef.current?.getConfig()?.dpr ?? 1;
+        const strokeWidth = canvasSDK?.getConfig()?.strokeWidth ?? 2;
+        const dpr = canvasSDK?.getConfig()?.dpr ?? 1;
         const diameter = (strokeWidth / dpr) * scale;
-        const isInEraserMode = sdkRef.current?.getConfig()?.isInEraserMode ?? false;
+        const isInEraserMode = canvasSDK?.getConfig()?.isInEraserMode ?? false;
         return {
             transform: `translate(${position.x - diameter / 2}px, ${position.y - diameter / 2}px)`,
             width: diameter,
@@ -108,11 +91,17 @@ const FJCanvasDesk: React.FC<FJCanvasDeskProps> = ({
             border: isInEraserMode ? '1px solid #00f' : '1px solid #fff',
             backgroundColor: isInEraserMode ? '#fff' : '#00f',
         };
-    }, [position.x, position.y]);
+    }, [canvasSDK, position.x, position.y]);
+
+    useEffect(() => {
+        return canvasSDK?.onDestroy(() => {
+            setScale(100);
+        });
+    }, [canvasSDK]);
 
     return (
         <div className={styles['canvas-desk']}>
-            <FJCanvasFloatToolBar onScaleChange={handleScaleChange} />
+            <FJCanvasFloatToolBar scale={scale} onScaleChange={handleScaleChange} />
             <div ref={canvasContainerRef} id='canvas-container' className={styles['canvas-container']}>
                 <canvas ref={canvasRef} />
                 <div

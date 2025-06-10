@@ -1,7 +1,8 @@
 import { IconEraser, IconPencil } from '@tabler/icons-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import styles from './canvasTool.module.css';
+import { FJCanvasUtils } from './FJCanvasUtils';
 
 export type Tool = 'pencil' | 'eraser' | 'strokeWidth';
 
@@ -9,9 +10,10 @@ interface Props {
     onDrawStart?: () => void;
     onEraseStart?: () => void;
     onStrokeWidthChange?: (width: number) => void;
+    canvasSDK?: FJCanvasUtils | null;
 }
 
-export default function FJCanvasTool({ onDrawStart, onEraseStart, onStrokeWidthChange }: Props) {
+export default function FJCanvasTool({ onDrawStart, onEraseStart, onStrokeWidthChange, canvasSDK }: Props) {
     const [currentTool, setCurrentTool] = useState<Tool | null>(null);
     const [strokeWidth, setStrokeWidth] = useState<number>(1);
 
@@ -37,6 +39,13 @@ export default function FJCanvasTool({ onDrawStart, onEraseStart, onStrokeWidthC
         },
         [onStrokeWidthChange],
     );
+
+    useEffect(() => {
+        return canvasSDK?.onDestroy(() => {
+            setCurrentTool(null);
+            setStrokeWidth(1);
+        });
+    }, [canvasSDK]);
 
     return (
         <div className={styles['tool-bar']}>

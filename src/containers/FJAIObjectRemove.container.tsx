@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useLayoutEffect } from 'react';
 import FJHeader from '../components/header/FJHeader';
 import styles from './container.module.css';
 import FJCanvasTool from '../components/canvas/FJCanvasTool';
@@ -13,7 +13,7 @@ export default function FJAIObjectRemoveContainer() {
     const [image, setImage] = useState<HTMLImageElement | null>(null);
     const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
     const [sdk, setSdk] = useState<FJCanvasUtils | null>(null);
-    const [error, setError] = useState<Error | null>(null);
+    const [error] = useState<Error | null>(null);
 
     const isImageUploaded = useMemo(() => {
         return image !== null && image.src !== '';
@@ -21,15 +21,6 @@ export default function FJAIObjectRemoveContainer() {
 
     const handleCanvasReady = useCallback((canvas: HTMLCanvasElement) => {
         setCanvas(canvas);
-    }, []);
-
-    const handleSDKReady = useCallback((sdk: FJCanvasUtils) => {
-        setSdk(sdk);
-    }, []);
-
-    const handleCanvasError = useCallback((error: Error) => {
-        setError(error);
-        // 可以在这里添加错误处理逻辑，比如显示错误提示等
     }, []);
 
     const handleDrawStart = useCallback(() => {
@@ -59,6 +50,37 @@ export default function FJAIObjectRemoveContainer() {
         link.click();
     }, [sdk, canvas]);
 
+    const handleUploadImage = useCallback((image: HTMLImageElement) => {
+        setImage(image);
+    }, []);
+
+    const handleScaleChange = useCallback(
+        (scale: number) => {
+            if (!sdk) return;
+            sdk.setScale(scale / 100);
+        },
+        [sdk],
+    );
+
+    useLayoutEffect(() => {
+        if (!canvas || !image) return;
+
+        let _sdk: FJCanvasUtils | null = null;
+        try {
+            _sdk = new FJCanvasUtils(canvas, canvas.clientWidth, canvas.clientHeight);
+            setSdk(_sdk);
+
+            _sdk.clear();
+            _sdk.drawImage(image);
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+        return () => {
+            _sdk?.destroy();
+        };
+    }, [canvas, image]);
+
     if (error) {
         return <div>Sorry, an error occurred: {error.message}</div>;
     }
@@ -68,9 +90,10 @@ export default function FJAIObjectRemoveContainer() {
             <FJHeader />
             <div className={styles.content}>
                 <div className={styles['left-content']}>
-                    <FJImageUploader onImageUpload={setImage} />
+                    <FJImageUploader onImageUpload={handleUploadImage} />
                     {isImageUploaded && (
                         <FJCanvasTool
+                            canvasSDK={sdk}
                             onDrawStart={handleDrawStart}
                             onEraseStart={handleEraseStart}
                             onStrokeWidthChange={handleStrokeWidthChange}
@@ -95,8 +118,8 @@ export default function FJAIObjectRemoveContainer() {
                     <FJCanvasContainer
                         image={image}
                         onCanvasReady={handleCanvasReady}
-                        onSDKReady={handleSDKReady}
-                        onError={handleCanvasError}
+                        canvasSDK={sdk}
+                        onScaleChange={handleScaleChange}
                     />
                 </div>
             </div>

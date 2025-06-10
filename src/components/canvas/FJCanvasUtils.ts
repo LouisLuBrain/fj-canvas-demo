@@ -38,7 +38,6 @@ export class FJCanvasUtils {
     private isInEraserMode: boolean = false;
     private _maskCanvas: HTMLCanvasElement | null = null;
     private _maskCtx: CanvasRenderingContext2D | null = null;
-    // private _centerPoint: Point = { x: 0, y: 0 };
 
     /**
      * 构造函数
@@ -48,6 +47,7 @@ export class FJCanvasUtils {
      * @param {number} height 画布高度
      */
     constructor(canvasEl: HTMLCanvasElement, width: number, height: number, defaultConfig?: DefaultConfig) {
+        console.log('LOG ===> constructor');
         this.canvas = canvasEl;
         const ctx = this.canvas.getContext('2d');
         if (!ctx) {
@@ -282,6 +282,8 @@ export class FJCanvasUtils {
      * @param {number} y 左上角Y坐标
      */
     drawImage(image: HTMLImageElement): CanvasPattern | null {
+        // 清除画布
+        this.clear();
         const offscreen = document.createElement('canvas');
 
         // 使用设备像素比创建更大的离屏画布
@@ -312,9 +314,6 @@ export class FJCanvasUtils {
                 willReadFrequently: true,
             });
             if (!offscreenCtx) throw new Error('Failed to get offscreen context');
-
-            // 清除主画布
-            this.clear();
 
             this.ctx.setTransform(scaleToFit * this._dpr, 0, 0, scaleToFit * this._dpr, centerX, centerY);
             this.ctx.save();
@@ -384,6 +383,7 @@ export class FJCanvasUtils {
      * 销毁画布
      */
     destroy() {
+        console.log('LOG ===> destroy');
         this.setScale(1);
         this.clear();
 
@@ -392,14 +392,19 @@ export class FJCanvasUtils {
 
         this._isDrawing = false;
         this._isEraser = false;
-        // this._strokeColor = DEFAULT_STROKE_COLOR;
-        // this._eraserColor = DEFAULT_ERASER_COLOR;
-        // TODO: 销毁事件
+        this.canvas.dispatchEvent(new Event('destroy'));
     }
 
     exportMaskData(): string | null {
         if (!this._maskCtx) return null;
         const imageData = this._maskCanvas?.toDataURL('image/jpeg');
         return imageData ?? null;
+    }
+
+    onDestroy(callback: () => void) {
+        this.canvas.addEventListener('destroy', callback);
+        return () => {
+            this.canvas.removeEventListener('destroy', callback);
+        };
     }
 }

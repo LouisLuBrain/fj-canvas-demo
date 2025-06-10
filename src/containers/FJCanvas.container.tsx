@@ -14,11 +14,11 @@ const TABS = [
 interface FJCanvasContainerProps {
     image?: HTMLImageElement | null;
     onCanvasReady?: (canvas: HTMLCanvasElement) => void;
-    onSDKReady?: (sdk: FJCanvasUtils) => void;
-    onError?: (error: Error) => void;
+    canvasSDK?: FJCanvasUtils | null;
+    onScaleChange?: (scale: number) => void;
 }
 
-export default function FJCanvasContainer({ image, onCanvasReady, onSDKReady, onError }: FJCanvasContainerProps) {
+export default function FJCanvasContainer({ image, onCanvasReady, canvasSDK, onScaleChange }: FJCanvasContainerProps) {
     const [tab, setTab] = useState<'canvas' | 'history'>('canvas');
     const currentTab = useMemo(() => {
         return TABS.find(_tab => _tab.value === tab);
@@ -40,8 +40,8 @@ export default function FJCanvasContainer({ image, onCanvasReady, onSDKReady, on
                     <FJCanvasDesk
                         image={image}
                         onCanvasReady={onCanvasReady}
-                        onSDKReady={onSDKReady}
-                        onError={onError}
+                        canvasSDK={canvasSDK}
+                        onScaleChange={onScaleChange}
                     />
                 ))}
             {tab === 'history' && <FJImageHistoryList />}

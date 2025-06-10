@@ -1,6 +1,6 @@
 import { IconMinus, IconPlus } from '@tabler/icons-react';
 import styles from './canvasTool.module.css';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 
 const MIN_SCALE = 20;
 const MAX_SCALE = 150;
@@ -9,14 +9,15 @@ const RANGE_STEP = 1;
 
 interface FJCanvasFloatToolBarProps {
     onScaleChange?: (scale: number) => void;
+    scale: number;
 }
 
-export default function FJCanvasFloatToolBar({ onScaleChange }: FJCanvasFloatToolBarProps) {
-    const [scale, setScale] = useState(100);
+export default function FJCanvasFloatToolBar({ onScaleChange, scale = 100 }: FJCanvasFloatToolBarProps) {
+    // const [scale, setScale] = useState(100);
 
     const handleScaleChange = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
-            setScale(Number(e.target.value));
+            // setScale(Number(e.target.value));
             onScaleChange?.(Number(e.target.value));
         },
         [onScaleChange],
@@ -30,7 +31,7 @@ export default function FJCanvasFloatToolBar({ onScaleChange }: FJCanvasFloatToo
             } else {
                 _scale = Math.max(_scale - BTN_STEP, MIN_SCALE);
             }
-            setScale(_scale);
+            // setScale(_scale);
             onScaleChange?.(_scale);
         },
         [scale, onScaleChange],
