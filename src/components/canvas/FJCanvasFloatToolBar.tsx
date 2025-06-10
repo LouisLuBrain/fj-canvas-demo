@@ -1,6 +1,7 @@
 import { IconMinus, IconPlus } from '@tabler/icons-react';
 import styles from './canvasTool.module.css';
 import { useCallback } from 'react';
+import FJRangeInput from '../rangeInput/FJRangeInput';
 
 const MIN_SCALE = 20;
 const MAX_SCALE = 150;
@@ -47,8 +48,7 @@ export default function FJCanvasFloatToolBar({ onScaleChange, scale = 100 }: FJC
                 >
                     <IconMinus size={16} />
                 </button>
-                <input
-                    type='range'
+                <FJRangeInput
                     min={MIN_SCALE}
                     max={MAX_SCALE}
                     step={RANGE_STEP}

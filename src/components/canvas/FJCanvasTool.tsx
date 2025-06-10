@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import styles from './canvasTool.module.css';
 import { FJCanvasUtils } from './FJCanvasUtils';
+import FJRangeInput from '../rangeInput/FJRangeInput';
 
 export type Tool = 'pencil' | 'eraser' | 'strokeWidth';
 
@@ -80,15 +81,7 @@ export default function FJCanvasTool({ onDrawStart, onEraseStart, onStrokeWidthC
                     <span className={styles['width-value']}>{strokeWidth}</span>
                 </div>
                 <div className={styles['tool-group']}>
-                    <input
-                        type='range'
-                        min='2'
-                        max='100'
-                        value={strokeWidth}
-                        step={1}
-                        onChange={handleStrokeWidthChange}
-                        className={styles['width-input']}
-                    />
+                    <FJRangeInput min={2} max={100} value={strokeWidth} onChange={handleStrokeWidthChange} />
                 </div>
             </div>
         </div>
