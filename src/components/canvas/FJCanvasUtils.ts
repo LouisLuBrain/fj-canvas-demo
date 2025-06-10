@@ -123,8 +123,21 @@ export class FJCanvasUtils {
      * 清除整个画布
      */
     clear() {
+        this._clearCanvas();
+        this._clearMask();
+    }
+
+    private _clearMask() {
+        if (this._maskCtx && this._maskCanvas) {
+            this._maskCtx?.resetTransform();
+
+            this._maskCtx.clearRect(0, 0, this._maskCanvas.width, this._maskCanvas.height);
+        }
+    }
+
+    private _clearCanvas() {
+        this.ctx.resetTransform();
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this._maskCtx?.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
     /**
@@ -141,19 +154,24 @@ export class FJCanvasUtils {
         lineWidth: number = 1,
     ) {
         if (this._maskCtx && this._maskCanvas) {
-            const inv = this._maskCtx.getTransform().inverse();
-            const logicalPoint = new DOMPoint(x1 * this._dpr, y1 * this._dpr).matrixTransform(inv);
+            this._maskCtx.save();
 
-            const { x: centerX, y: centerY } = this._centerPoint;
+            const inv = this.ctx.getTransform().inverse();
+            const logicalPoint = new DOMPoint(x1, y1).matrixTransform(inv);
 
-            const _x = logicalPoint.x - centerX;
-            const _y = logicalPoint.y - centerY;
-
-            this._maskCtx.strokeStyle = color;
             this._maskCtx.fillStyle = color;
             this._maskCtx.beginPath();
-            this._maskCtx.arc(_x, _y, lineWidth / 2 / this._scale, 0, Math.PI * 2);
+            this._maskCtx.arc(
+                logicalPoint.x,
+                logicalPoint.y,
+                lineWidth / 2 / this._scaleToFit / this._dpr,
+                0,
+                Math.PI * 2,
+            );
+
             this._maskCtx.fill();
+
+            this._maskCtx.restore();
         }
     }
 
@@ -168,18 +186,12 @@ export class FJCanvasUtils {
         this._maskCtx.globalCompositeOperation = 'source-over';
         const { clientX, clientY } = e;
         const { left, top } = this.canvas.getBoundingClientRect();
-        const x = clientX - left;
-        const y = clientY - top;
+        const x = (clientX - left) * this._dpr;
+        const y = (clientY - top) * this._dpr;
 
         this.drawLine(x, y, this._strokeColor, this._strokeWidth);
         this._lastPoint = { x, y };
         this._maskCtx.globalCompositeOperation = 'source-over';
-
-        this.ctx.strokeStyle = this._strokeColor;
-        this.ctx.fillStyle = this._strokeColor;
-        this.ctx.beginPath();
-        this.ctx.arc(x, y, this._strokeWidth / 2, 0, Math.PI * 2);
-        this.ctx.fill();
 
         this._redraw();
     };
@@ -190,6 +202,8 @@ export class FJCanvasUtils {
         const { left, top } = this.canvas.getBoundingClientRect();
         this._lastPoint = { x: clientX - left, y: clientY - top };
         this._drawLineMove(e);
+
+        this.ctx.restore();
     };
 
     private _drawMouseUp = () => {
@@ -242,8 +256,8 @@ export class FJCanvasUtils {
         this._maskCtx.globalCompositeOperation = 'destination-out';
         const { clientX, clientY } = e;
         const { left, top } = this.canvas.getBoundingClientRect();
-        const x = clientX - left;
-        const y = clientY - top;
+        const x = (clientX - left) * this._dpr;
+        const y = (clientY - top) * this._dpr;
 
         this.drawLine(x, y, this._strokeColor, this._strokeWidth);
         this._lastPoint = { x, y };
@@ -308,8 +322,8 @@ export class FJCanvasUtils {
         this._centerPoint = { x: centerX, y: centerY };
 
         if (this._maskCanvas) {
-            this._maskCanvas.width = scaledWidth;
-            this._maskCanvas.height = scaledHeight;
+            this._maskCanvas.width = image.naturalWidth;
+            this._maskCanvas.height = image.naturalHeight;
         }
 
         try {
@@ -318,25 +332,20 @@ export class FJCanvasUtils {
                 willReadFrequently: true,
             });
             if (!offscreenCtx) throw new Error('Failed to get offscreen context');
-            this.ctx.save();
 
-            // 设置离屏画布的缩放以匹配设备像素比
-            offscreenCtx.scale(this._dpr, this._dpr);
+            // 清除主画布
+            this.clear();
+
+            this.ctx.setTransform(scaleToFit * this._dpr, 0, 0, scaleToFit * this._dpr, centerX, centerY);
+            this.ctx.save();
 
             // 在离屏画布上绘制原始图片
             offscreenCtx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight);
 
-            // 清除主画布
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.setScale(1);
-
             // 在主画布上绘制高清图片
-            this.ctx.drawImage(offscreen, centerX, centerY, scaledWidth, scaledHeight);
+            this.ctx.drawImage(offscreen, 0, 0);
 
-            // if (this._maskCtx && this._maskCanvas) {
-            //     this._maskCtx.fillStyle = '#00900ff0';
-            //     this._maskCtx.fillRect(0, 0, this._maskCanvas.width, this._maskCanvas.height);
-            // }
+            this.ctx.restore();
 
             this._image = image;
 
@@ -353,40 +362,40 @@ export class FJCanvasUtils {
      */
     setScale(scale: number) {
         this._scale = scale;
-        this.ctx.setTransform(scale, 0, 0, scale, 0, 0);
-        this._maskCtx?.setTransform(scale, 0, 0, scale, 0, 0);
         this._redraw();
-        // this.canvas.style.transform = 'scale(' + scale + ')';
     }
 
     private _redraw() {
         if (!this._image) return;
         const ctx = this.ctx;
+        this._clearCanvas();
 
-        ctx.save();
-
-        ctx.clearRect(0, 0, this.canvas.width / this._scale, this.canvas.height / this._scale);
-
-        // 计算原始图片缩放比例
+        // 更新中心点偏移
         const localScale = this._scale * this._scaleToFit;
         const scaledWidth = this._image.naturalWidth * this._dpr * localScale;
         const scaledHeight = this._image.naturalHeight * this._dpr * localScale;
         // 计算居中位置（考虑DPR）
-        const centerX = (this.canvas.width / this._scale - scaledWidth) / 2;
-        const centerY = (this.canvas.height / this._scale - scaledHeight) / 2;
+        const centerX = (this.canvas.width - scaledWidth) / 2;
+        const centerY = (this.canvas.height - scaledHeight) / 2;
         this._centerPoint = { x: centerX, y: centerY };
 
-        this.ctx.drawImage(this._image, centerX, centerY, scaledWidth, scaledHeight);
+        this.ctx.setTransform(localScale * this._dpr, 0, 0, localScale * this._dpr, centerX, centerY);
+
+        // 绘制图片;
+        ctx.save();
+        this.ctx.drawImage(this._image, 0, 0);
 
         if (this._maskCanvas && this._maskCtx) {
             // 绘制遮罩层 使用source-atop 和 globalAlpha 来实现遮罩层
-            this.ctx.globalAlpha = 0.5;
+            this.ctx.save();
             this.ctx.globalCompositeOperation = 'source-atop';
-            this.ctx.drawImage(this._maskCanvas, centerX, centerY, scaledWidth, scaledHeight);
+            this.ctx.globalAlpha = 0.5;
+            this.ctx.drawImage(this._maskCanvas, 0, 0);
 
             // 恢复全局透明度
             this.ctx.globalAlpha = 1;
             this.ctx.globalCompositeOperation = 'source-over';
+            this.ctx.restore();
         }
 
         const pattern = this.ctx.createPattern(this.canvas, 'repeat');
