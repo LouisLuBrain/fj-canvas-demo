@@ -47,7 +47,6 @@ export class FJCanvasUtils {
      * @param {number} height 画布高度
      */
     constructor(canvasEl: HTMLCanvasElement, width: number, height: number, defaultConfig?: DefaultConfig) {
-        console.log('LOG ===> constructor');
         this.canvas = canvasEl;
         const ctx = this.canvas.getContext('2d');
         if (!ctx) {
@@ -383,7 +382,6 @@ export class FJCanvasUtils {
      * 销毁画布
      */
     destroy() {
-        console.log('LOG ===> destroy');
         this.setScale(1);
         this.clear();
 
