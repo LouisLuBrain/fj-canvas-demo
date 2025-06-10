@@ -3,6 +3,7 @@ import styles from './imageUploader.module.css';
 import fjUploadIcon from '../../assets/fj-upload-icon.svg';
 import { IconUpload } from '@tabler/icons-react';
 import commonStyles from '../../common.module.css';
+import { useToast } from '../toast/ToastProvider';
 
 const ACCEPT_IMAGE_FORMAT = [
     'image/png',
@@ -21,6 +22,8 @@ interface FJImageUploaderProps {
 export default function FJImageUploader(props: FJImageUploaderProps) {
     const [isDragging, setIsDragging] = useState(false);
     const [image, setImage] = useState<HTMLImageElement | null>(null);
+
+    const { showToast } = useToast();
 
     const isImageUploaded = useMemo(() => {
         return image !== null && image.src !== '';
@@ -71,7 +74,10 @@ export default function FJImageUploader(props: FJImageUploaderProps) {
             if (ACCEPT_IMAGE_FORMAT.includes(file.type)) {
                 handleUploadImage(file);
             } else {
-                console.error('Unsupported format. Please upload images in jpg, png, etc.');
+                showToast({
+                    message: 'Unsupported format. Please upload images in jpg, png, etc.',
+                    type: 'error',
+                });
             }
         });
     };

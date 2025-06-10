@@ -9,12 +9,15 @@ import FJCoinIcon from '../assets/fj-coin.png';
 import commonStyles from '../common.module.css';
 import FJCanvasContainer from './FJCanvas.container';
 import { removeObjectRequest } from '../requests/requests';
+import { useToast } from '../components/toast/ToastProvider';
 
 export default function FJAIObjectRemoveContainer() {
     const [image, setImage] = useState<HTMLImageElement | null>(null);
     const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
     const [sdk, setSdk] = useState<FJCanvasUtils | null>(null);
     const [error] = useState<Error | null>(null);
+
+    const { showToast } = useToast();
 
     const isImageUploaded = useMemo(() => {
         return image !== null && image.src !== '';
@@ -51,6 +54,10 @@ export default function FJAIObjectRemoveContainer() {
                 mask: imageData,
             });
         } catch (error) {
+            showToast({
+                message: 'Failed to remove object',
+                type: 'error',
+            });
             console.error(error);
             return;
         }
@@ -59,7 +66,7 @@ export default function FJAIObjectRemoveContainer() {
         link.href = imageData;
         link.download = 'mask.jpg';
         link.click();
-    }, [sdk, canvas, image]);
+    }, [sdk, canvas, image, showToast]);
 
     const handleUploadImage = useCallback((image: HTMLImageElement) => {
         setImage(image);

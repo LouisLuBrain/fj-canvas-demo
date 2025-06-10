@@ -1,11 +1,14 @@
 import styles from './App.module.css';
+import { FJToastProvider } from './components/toast/ToastProvider';
 import FJAIObjectRemovePage from './pages/FJAIObjectRemovePage';
 
 function App() {
     return (
-        <div className={styles.page}>
-            <FJAIObjectRemovePage />
-        </div>
+        <FJToastProvider>
+            <div className={styles.page}>
+                <FJAIObjectRemovePage />
+            </div>
+        </FJToastProvider>
     );
 }
 
