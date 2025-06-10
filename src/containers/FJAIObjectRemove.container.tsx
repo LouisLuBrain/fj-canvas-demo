@@ -8,6 +8,7 @@ import { FJCanvasUtils } from '../components/canvas/FJCanvasUtils';
 import FJCoinIcon from '../assets/fj-coin.png';
 import commonStyles from '../common.module.css';
 import FJCanvasContainer from './FJCanvas.container';
+import { removeObjectRequest } from '../requests/requests';
 
 export default function FJAIObjectRemoveContainer() {
     const [image, setImage] = useState<HTMLImageElement | null>(null);
@@ -40,15 +41,25 @@ export default function FJAIObjectRemoveContainer() {
         [sdk],
     );
 
-    const handleRemoveObject = useCallback(() => {
-        if (!sdk || !canvas) return;
+    const handleRemoveObject = useCallback(async () => {
+        if (!sdk || !canvas || !image) return;
         const imageData = sdk.exportMaskData();
         if (!imageData) return;
+        try {
+            await removeObjectRequest({
+                image: image.src,
+                mask: imageData,
+            });
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+
         const link = document.createElement('a');
         link.href = imageData;
         link.download = 'mask.jpg';
         link.click();
-    }, [sdk, canvas]);
+    }, [sdk, canvas, image]);
 
     const handleUploadImage = useCallback((image: HTMLImageElement) => {
         setImage(image);
