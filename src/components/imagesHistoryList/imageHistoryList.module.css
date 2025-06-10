@@ -8,10 +8,22 @@
 }
 
 .images-history-list {
-    column-count: 2; /* 几列 */
+    column-count: 3; /* 几列 */
     column-gap: 16px;
 
     margin: 16px;
+}
+
+@media (width <= 1600px) {
+    .images-history-list {
+        column-count: 2;
+    }
+}
+
+@media (width <= 1200px) {
+    .images-history-list {
+        column-count: 1;
+    }
 }
 
 .images-history-list-item {
