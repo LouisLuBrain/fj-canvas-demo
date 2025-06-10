@@ -6,6 +6,7 @@ import image2 from '../../assets/andrey-k-FUKidTAPUdk-unsplash.jpg';
 import image4 from '../../assets/anna-spoljar-dfaCZjYYNTE-unsplash.jpg';
 import image5 from '../../assets/daniel-akselrod-GRgfv49Nf-M-unsplash.jpg';
 import image6 from '../../assets/jorgen-hendriksen-BVbfrXuNGaQ-unsplash.jpg';
+import { IconDownload, IconEdit, IconTrash } from '@tabler/icons-react';
 
 const IMAGE_HISTORY_LIST = [
     { imageURL: image6, id: crypto.randomUUID() },
@@ -26,6 +27,26 @@ export default function FJImageHistoryList() {
             <div className={styles['images-history-list']}>
                 {IMAGE_HISTORY_LIST.map(item => (
                     <div className={styles['images-history-list-item']} key={item.id}>
+                        <div className={`${styles['images-history-list-item-checkbox']} ${styles['float-btn']}`}>
+                            <label htmlFor={item.id}>
+                                <input type='checkbox' id={item.id} />
+                            </label>
+                        </div>
+                        <div className={`${styles['images-history-list-item-edit']} ${styles['float-btn']}`}>
+                            <button>
+                                <IconTrash size={22} />
+                            </button>
+                            <button>
+                                <IconDownload size={22} />
+                            </button>
+                            <button>
+                                <IconEdit size={22} />
+                                Edit
+                            </button>
+                        </div>
+                        <div className={`${styles['images-history-list-item-adjust']} ${styles['float-btn']}`}>
+                            <button>Adjust</button>
+                        </div>
                         <img
                             className={styles['images-history-list-item-image']}
                             src={item.imageURL}

@@ -8,20 +8,22 @@
 }
 
 .images-history-list {
-    column-count: 3; /* 几列 */
+    column-count: 2; /* 几列 */
     column-gap: 16px;
 
     margin: 16px;
 }
 
 .images-history-list-item {
+    position: relative;
+
     margin-bottom: 16px;
 
     border-radius: 8px;
 
-    break-inside: avoid;
-
     transition: all 0.3s ease;
+
+    break-inside: avoid;
 }
 
 .images-history-list-item:hover {
@@ -39,4 +41,78 @@
     border-radius: 4px;
 
     cursor: pointer;
+}
+
+.float-btn {
+    position: absolute;
+
+    transition: all 0.3s ease;
+
+    opacity: 0;
+    user-select: none;
+}
+
+.images-history-list-item:hover .float-btn {
+    opacity: 1;
+}
+
+.float-btn button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    padding: 6px 8px;
+
+    border: none;
+    border-radius: 6px;
+
+    background: #0008;
+
+    color: #fff;
+
+    font-size: 14px;
+
+    cursor: pointer;
+}
+
+.float-btn label input {
+    width: 20px;
+    height: 20px;
+
+    border-radius: 4px;
+
+    background: #fff;
+}
+
+.images-history-list-item-checkbox {
+    top: 4px;
+    left: 4px;
+}
+
+.images-history-list-item-edit {
+    top: 4px;
+    right: 4px;
+
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.images-history-list-item-adjust {
+    right: 4px;
+    bottom: 4px;
+}
+
+.images-history-list-item-adjust button {
+    padding: 8px 12px;
+
+    background: #fff;
+
+    color: #000;
+
+    transition: all 0.3s ease;
+}
+
+.images-history-list-item-adjust button:hover {
+    background: #e0e0e0;
 }
