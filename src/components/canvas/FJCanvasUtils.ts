@@ -1,17 +1,11 @@
 const DEFAULT_STROKE_COLOR = '#0000ff';
 const DEFAULT_STROKE_WIDTH = 20;
-const DEFAULT_ERASER_COLOR = '#fff';
 
 const CANVAS_FIT_PADDING_X = 16;
 const CANVAS_FIT_PADDING_Y = 60;
 
 interface DefaultConfig {
     strokeWidth?: number;
-}
-
-interface Point {
-    x: number;
-    y: number;
 }
 
 export interface FJCanvasUtilsSnapshot extends DefaultConfig {
@@ -35,8 +29,8 @@ export class FJCanvasUtils {
     private _isEraser: boolean = false;
     private _strokeColor: string | CanvasGradient | CanvasPattern = DEFAULT_STROKE_COLOR;
     private _strokeWidth: number = DEFAULT_STROKE_WIDTH;
-    private _eraserColor: string | CanvasGradient | CanvasPattern = DEFAULT_ERASER_COLOR;
-    private _lastPoint: Point = { x: 0, y: 0 };
+    // private _eraserColor: string | CanvasGradient | CanvasPattern = DEFAULT_ERASER_COLOR;
+    // private _lastPoint: Point = { x: 0, y: 0 };
     private _scale: number = 1;
     private _scaleToFit: number = 1;
     private _dpr: number = window.devicePixelRatio || 1;
@@ -44,7 +38,7 @@ export class FJCanvasUtils {
     private isInEraserMode: boolean = false;
     private _maskCanvas: HTMLCanvasElement | null = null;
     private _maskCtx: CanvasRenderingContext2D | null = null;
-    private _centerPoint: Point = { x: 0, y: 0 };
+    // private _centerPoint: Point = { x: 0, y: 0 };
 
     /**
      * 构造函数
@@ -109,14 +103,6 @@ export class FJCanvasUtils {
      */
     setStrokeWidth(width: number) {
         this._strokeWidth = width;
-    }
-
-    /**
-     * 设置擦除颜色
-     * @param {string | CanvasPattern} color 颜色
-     */
-    setEraserColor(color: string | CanvasPattern) {
-        this._eraserColor = color;
     }
 
     /**
@@ -190,7 +176,7 @@ export class FJCanvasUtils {
         const y = (clientY - top) * this._dpr;
 
         this.drawLine(x, y, this._strokeColor, this._strokeWidth);
-        this._lastPoint = { x, y };
+
         this._maskCtx.globalCompositeOperation = 'source-over';
 
         this._redraw();
@@ -198,9 +184,7 @@ export class FJCanvasUtils {
 
     private _drawMouseDown = (e: MouseEvent) => {
         this._isDrawing = true;
-        const { clientX, clientY } = e;
-        const { left, top } = this.canvas.getBoundingClientRect();
-        this._lastPoint = { x: clientX - left, y: clientY - top };
+
         this._drawLineMove(e);
 
         this.ctx.restore();
@@ -234,9 +218,7 @@ export class FJCanvasUtils {
 
     private _eraserMouseDown = (e: MouseEvent) => {
         this._isEraser = true;
-        const { clientX, clientY } = e;
-        const { left, top } = this.canvas.getBoundingClientRect();
-        this._lastPoint = { x: clientX - left, y: clientY - top };
+
         this._eraserMove(e);
     };
 
@@ -260,7 +242,7 @@ export class FJCanvasUtils {
         const y = (clientY - top) * this._dpr;
 
         this.drawLine(x, y, this._strokeColor, this._strokeWidth);
-        this._lastPoint = { x, y };
+
         this._maskCtx.globalCompositeOperation = 'source-over';
 
         this._redraw();
@@ -319,8 +301,6 @@ export class FJCanvasUtils {
         const centerX = (this.canvas.width - scaledWidth) / 2;
         const centerY = (this.canvas.height - scaledHeight) / 2;
 
-        this._centerPoint = { x: centerX, y: centerY };
-
         if (this._maskCanvas) {
             this._maskCanvas.width = image.naturalWidth;
             this._maskCanvas.height = image.naturalHeight;
@@ -377,7 +357,6 @@ export class FJCanvasUtils {
         // 计算居中位置（考虑DPR）
         const centerX = (this.canvas.width - scaledWidth) / 2;
         const centerY = (this.canvas.height - scaledHeight) / 2;
-        this._centerPoint = { x: centerX, y: centerY };
 
         this.ctx.setTransform(localScale * this._dpr, 0, 0, localScale * this._dpr, centerX, centerY);
 
@@ -398,8 +377,6 @@ export class FJCanvasUtils {
             this.ctx.restore();
         }
 
-        const pattern = this.ctx.createPattern(this.canvas, 'repeat');
-        if (pattern) this.setEraserColor(pattern);
         ctx.restore();
     }
 

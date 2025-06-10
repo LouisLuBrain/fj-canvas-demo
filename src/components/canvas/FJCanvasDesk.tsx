@@ -40,8 +40,7 @@ const FJCanvasDesk: React.FC<FJCanvasDeskProps> = ({
             onSDKReady?.(sdk);
 
             sdk.clear();
-            const pattern = sdk.drawImage(image);
-            if (pattern) sdk.setEraserColor(pattern);
+            sdk.drawImage(image);
         } catch (error) {
             console.error(error);
             onError?.(error as Error);
