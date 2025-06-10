@@ -1,4 +1,6 @@
 .tab-container {
+    position: relative;
+
     display: flex;
     justify-content: center;
     align-items: center;
@@ -34,7 +36,27 @@
 }
 
 .tab-button[data-active='true'] {
-    border-bottom: 2px solid #080a10;
-
     opacity: 1;
+}
+
+.tab-container::after {
+    position: absolute;
+    bottom: 0;
+    left: var(--active-tab-offset-left);
+
+    width: var(--active-tab-width);
+
+    height: 4px;
+
+    border-radius: 2px;
+
+    background: transparent;
+    content: '';
+
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tab-container:has(.tab-button[data-active='true'])::after {
+    /* border-bottom: 2px solid #080a10; */
+    background: linear-gradient(132deg, #ff47d0 4%, #ff822c);
 }
