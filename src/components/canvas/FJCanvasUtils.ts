@@ -410,6 +410,7 @@ export class FJCanvasUtils {
         if (this._maskCanvas && this._maskCtx) {
             // 绘制遮罩层 使用source-atop 和 globalAlpha 来实现遮罩层
             this.ctx.save();
+            this.ctx.filter = 'blur(12px)';
             this.ctx.globalCompositeOperation = 'source-atop';
             this.ctx.globalAlpha = 0.5;
             this.ctx.drawImage(this._maskCanvas, 0, 0);
