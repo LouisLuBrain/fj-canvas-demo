@@ -96,6 +96,7 @@ const FJCanvasDesk: React.FC<FJCanvasDeskProps> = ({
     useEffect(() => {
         return canvasSDK?.onDestroy(() => {
             setScale(100);
+            canvasSDK?.setScale(1);
         });
     }, [canvasSDK]);
 

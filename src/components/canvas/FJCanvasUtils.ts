@@ -382,7 +382,6 @@ export class FJCanvasUtils {
      * 销毁画布
      */
     destroy() {
-        this.setScale(1);
         this.clear();
 
         this.stopDrawLine();
