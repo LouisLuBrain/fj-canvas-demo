@@ -7,6 +7,10 @@
     align-items: center;
     gap: 16px;
 
+    box-sizing: border-box;
+
+    width: calc(100% - 4px);
+
     padding: 40px;
 
     border-radius: 10px;
@@ -38,16 +42,18 @@
     width: 100%;
     height: 100%;
 
-    border: 2px dashed #e0e0e0;
+    border: 2px dashed #fff;
 
     border-radius: 10px;
+
+    background: #bbbbd0;
+
+    transition: all 0.2s ease;
 
     inset: -2px;
     content: '';
 
     background-clip: border-box;
-
-    transition: all 0.2s ease;
 }
 
 .image-uploader::after {
@@ -65,8 +71,6 @@
 
 .image-uploader:hover::before,
 .image-uploader.dragging::before {
-    border: 2px dashed #fff;
-
     background: linear-gradient(132deg, #ff47d0 4%, #ff822c);
 }
 
