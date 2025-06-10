@@ -265,12 +265,8 @@ export class FJCanvasUtils {
     stopEraser() {
         this._isEraser = false;
         this.isInEraserMode = false;
-        this.canvas.removeEventListener('mousedown', () => {
-            this._isEraser = true;
-        });
-        this.canvas.removeEventListener('mouseup', () => {
-            this._isEraser = false;
-        });
+        this.canvas.removeEventListener('mousedown', this._eraserMouseDown);
+        this.canvas.removeEventListener('mouseup', this._eraserMouseUp);
         this.canvas.removeEventListener('mousemove', this._eraserMove);
     }
 
