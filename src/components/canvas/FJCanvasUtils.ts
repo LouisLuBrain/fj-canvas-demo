@@ -322,8 +322,8 @@ export class FJCanvasUtils {
 
             this.ctx.save();
 
-            this.ctx.setTransform(scaleToFit, 0, 0, scaleToFit, centerX, centerY);
-            this._maskCtx?.setTransform(scaleToFit, 0, 0, scaleToFit, centerX, centerY);
+            this.ctx.setTransform(scaleToFit * this._dpr, 0, 0, scaleToFit * this._dpr, centerX, centerY);
+            this._maskCtx?.setTransform(scaleToFit * this._dpr, 0, 0, scaleToFit * this._dpr, centerX, centerY);
 
             // 在离屏画布上绘制原始图片
             offscreenCtx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight);
@@ -372,10 +372,10 @@ export class FJCanvasUtils {
         const centerY = (this.canvas.height - scaledHeight) / 2;
         this._centerPoint = { x: centerX, y: centerY };
 
-        this.ctx.setTransform(localScale, 0, 0, localScale, centerX, centerY);
+        this.ctx.setTransform(localScale * this._dpr, 0, 0, localScale * this._dpr, centerX, centerY);
 
         if (this._maskCtx) {
-            this._maskCtx.setTransform(localScale, 0, 0, localScale, centerX, centerY);
+            this._maskCtx.setTransform(localScale * this._dpr, 0, 0, localScale * this._dpr, centerX, centerY);
         }
         // 绘制图片
 
