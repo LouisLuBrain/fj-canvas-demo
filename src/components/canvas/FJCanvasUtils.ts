@@ -38,6 +38,7 @@ export class FJCanvasUtils {
     private isInEraserMode: boolean = false;
     private _maskCanvas: HTMLCanvasElement | null = null;
     private _maskCtx: CanvasRenderingContext2D | null = null;
+    private _lastPoint: { x: number; y: number } | null = null;
 
     /**
      * 构造函数
@@ -125,6 +126,23 @@ export class FJCanvasUtils {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
+    private _drawInterpolatedLine(
+        from: { x: number; y: number },
+        to: { x: number; y: number },
+        color: string | CanvasGradient | CanvasPattern,
+        lineWidth: number,
+    ) {
+        const distance = Math.hypot(to.x - from.x, to.y - from.y);
+        const step = 1; // 每 step 像素绘制一个点，越小越细腻
+
+        for (let i = 0; i < distance; i += step) {
+            const t = i / distance;
+            const x = from.x + (to.x - from.x) * t;
+            const y = from.y + (to.y - from.y) * t;
+            this.drawLine(x, y, color, lineWidth);
+        }
+    }
+
     /**
      * 绘制直线
      * @param {number} x1 mouse x
@@ -174,19 +192,33 @@ export class FJCanvasUtils {
         const x = (clientX - left) * this._dpr;
         const y = (clientY - top) * this._dpr;
 
-        this.drawLine(x, y, this._strokeColor, this._strokeWidth);
+        const currentPoint = { x, y };
+        const last = this._lastPoint;
+
+        if (last) {
+            this._drawInterpolatedLine(last, currentPoint, this._strokeColor, this._strokeWidth);
+        }
 
         this._maskCtx.globalCompositeOperation = 'source-over';
 
+        this._lastPoint = currentPoint;
         this._redraw();
     };
 
     private _drawMouseDown = (e: MouseEvent) => {
         this._isDrawing = true;
+        this._lastPoint = null;
+        if (this._maskCtx) {
+            this._maskCtx.globalCompositeOperation = 'source-over';
+            const { clientX, clientY } = e;
+            const { left, top } = this.canvas.getBoundingClientRect();
+            const x = (clientX - left) * this._dpr;
+            const y = (clientY - top) * this._dpr;
+            this.drawLine(x, y, this._strokeColor, this._strokeWidth);
 
-        this._drawLineMove(e);
-
-        this.ctx.restore();
+            this._maskCtx.globalCompositeOperation = 'source-over';
+            this._redraw();
+        }
     };
 
     private _drawMouseUp = () => {
@@ -217,8 +249,19 @@ export class FJCanvasUtils {
 
     private _eraserMouseDown = (e: MouseEvent) => {
         this._isEraser = true;
+        this._lastPoint = null;
+        if (this._maskCtx) {
+            this._maskCtx.globalCompositeOperation = 'destination-out';
+            const { clientX, clientY } = e;
+            const { left, top } = this.canvas.getBoundingClientRect();
+            const x = (clientX - left) * this._dpr;
+            const y = (clientY - top) * this._dpr;
+            this.drawLine(x, y, this._strokeColor, this._strokeWidth);
 
-        this._eraserMove(e);
+            this._maskCtx.globalCompositeOperation = 'source-over';
+
+            this._redraw();
+        }
     };
 
     private _eraserMouseUp = () => {
@@ -240,8 +283,14 @@ export class FJCanvasUtils {
         const x = (clientX - left) * this._dpr;
         const y = (clientY - top) * this._dpr;
 
-        this.drawLine(x, y, this._strokeColor, this._strokeWidth);
+        const currentPoint = { x, y };
+        const last = this._lastPoint;
 
+        if (last) {
+            this._drawInterpolatedLine(last, currentPoint, this._strokeColor, this._strokeWidth);
+        }
+
+        this._lastPoint = currentPoint;
         this._maskCtx.globalCompositeOperation = 'source-over';
 
         this._redraw();
