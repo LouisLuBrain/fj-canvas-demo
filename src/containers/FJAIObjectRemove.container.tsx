@@ -10,12 +10,13 @@ import commonStyles from '../common.module.css';
 import FJCanvasContainer from './FJCanvas.container';
 import { removeObjectRequest } from '../requests/requests';
 import { useToast } from '../components/toast/ToastProvider';
+import { IconAlertCircle } from '@tabler/icons-react';
 
 export default function FJAIObjectRemoveContainer() {
     const [image, setImage] = useState<HTMLImageElement | null>(null);
     const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
     const [sdk, setSdk] = useState<FJCanvasUtils | null>(null);
-    const [error] = useState<Error | null>(null);
+    const [error, setError] = useState<Error | null>(null);
 
     const { showToast } = useToast();
 
@@ -92,6 +93,7 @@ export default function FJAIObjectRemoveContainer() {
             _sdk.drawImage(image);
         } catch (error) {
             console.error(error);
+            setError(error as Error);
             return;
         }
         return () => {
@@ -99,48 +101,53 @@ export default function FJAIObjectRemoveContainer() {
         };
     }, [canvas, image]);
 
-    if (error) {
-        return <div>Sorry, an error occurred: {error.message}</div>;
-    }
-
     return (
         <div className={styles.container}>
             <FJHeader />
-            <div className={styles.content}>
-                <div className={styles['left-content']}>
-                    <FJImageUploader onImageUpload={handleUploadImage} />
-                    {isImageUploaded && (
-                        <FJCanvasTool
+            {error ? (
+                <div className={styles['error-container']}>
+                    <div className={styles['error-icon']}>
+                        <IconAlertCircle size={24} color='#ff3535bb' />
+                    </div>
+                    <div className={styles['error-message']}>Sorry, an error occurred: {error.message}</div>
+                </div>
+            ) : (
+                <div className={styles.content}>
+                    <div className={styles['left-content']}>
+                        <FJImageUploader onImageUpload={handleUploadImage} />
+                        {isImageUploaded && (
+                            <FJCanvasTool
+                                canvasSDK={sdk}
+                                onDrawStart={handleDrawStart}
+                                onEraseStart={handleEraseStart}
+                                onStrokeWidthChange={handleStrokeWidthChange}
+                            />
+                        )}
+                        {isImageUploaded && (
+                            <button
+                                type='button'
+                                aria-label='remove object'
+                                onClick={handleRemoveObject}
+                                className={`${commonStyles['fj-main-btn']} ${styles['remove-object-btn']}`}
+                            >
+                                Remove
+                                <span>
+                                    <img src={FJCoinIcon} width={16} height={16} alt='cost coin' />
+                                    -3
+                                </span>
+                            </button>
+                        )}
+                    </div>
+                    <div className={styles['right-content']}>
+                        <FJCanvasContainer
+                            image={image}
+                            onCanvasReady={handleCanvasReady}
                             canvasSDK={sdk}
-                            onDrawStart={handleDrawStart}
-                            onEraseStart={handleEraseStart}
-                            onStrokeWidthChange={handleStrokeWidthChange}
+                            onScaleChange={handleScaleChange}
                         />
-                    )}
-                    {isImageUploaded && (
-                        <button
-                            type='button'
-                            aria-label='remove object'
-                            onClick={handleRemoveObject}
-                            className={`${commonStyles['fj-main-btn']} ${styles['remove-object-btn']}`}
-                        >
-                            Remove
-                            <span>
-                                <img src={FJCoinIcon} width={16} height={16} alt='cost coin' />
-                                -3
-                            </span>
-                        </button>
-                    )}
+                    </div>
                 </div>
-                <div className={styles['right-content']}>
-                    <FJCanvasContainer
-                        image={image}
-                        onCanvasReady={handleCanvasReady}
-                        canvasSDK={sdk}
-                        onScaleChange={handleScaleChange}
-                    />
-                </div>
-            </div>
+            )}
         </div>
     );
 }

@@ -51,7 +51,7 @@ export class FJCanvasUtils {
         this.canvas = canvasEl;
         const ctx = this.canvas.getContext('2d');
         if (!ctx) {
-            throw new Error('Canvas context is not supported');
+            throw new Error('Your browser does not support canvas. Please use a modern browser.');
         }
 
         this.ctx = ctx;
