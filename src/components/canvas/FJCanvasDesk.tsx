@@ -96,14 +96,15 @@ const FJCanvasDesk: React.FC<FJCanvasDeskProps> = ({
     // 画笔指针样式
     const brushPointerStyle = useMemo(() => {
         const scale = sdkRef.current?.getConfig()?.scale ?? 1;
+
         const strokeWidth = sdkRef.current?.getConfig()?.strokeWidth ?? 2;
         const dpr = sdkRef.current?.getConfig()?.dpr ?? 1;
-        const radius = strokeWidth / 2;
+        const diameter = (strokeWidth / dpr) * scale;
         const isInEraserMode = sdkRef.current?.getConfig()?.isInEraserMode ?? false;
         return {
-            transform: `translate(${position.x - (radius / dpr) * scale}px, ${position.y - (radius / dpr) * scale}px)`,
-            width: radius * scale,
-            height: radius * scale,
+            transform: `translate(${position.x - diameter / 2}px, ${position.y - diameter / 2}px)`,
+            width: diameter,
+            height: diameter,
             border: isInEraserMode ? '1px solid #00f' : '1px solid #fff',
             backgroundColor: isInEraserMode ? '#fff' : '#00f',
         };
