@@ -43,7 +43,7 @@ export default function FJCanvasTool({ onDrawStart, onEraseStart, onStrokeWidthC
     useEffect(() => {
         return canvasSDK?.onDestroy(() => {
             setCurrentTool(null);
-            setStrokeWidth(1);
+            setStrokeWidth(15);
         });
     }, [canvasSDK]);
 

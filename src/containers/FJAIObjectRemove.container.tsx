@@ -106,7 +106,7 @@ export default function FJAIObjectRemoveContainer() {
                             onClick={handleRemoveObject}
                             className={`${commonStyles['fj-main-btn']} ${styles['remove-object-btn']}`}
                         >
-                            Generate
+                            Remove
                             <span>
                                 <img src={FJCoinIcon} width={16} height={16} alt='cost coin' />
                                 -3
