@@ -1,4 +1,4 @@
-import { FJAIObjectRemoveContainer } from '../containers';
+import { FJAIObjectRemoveContainer } from '../components/FJAIObjectRemover';
 
 export default function FJAIObjectRemovePage() {
     return <FJAIObjectRemoveContainer />;

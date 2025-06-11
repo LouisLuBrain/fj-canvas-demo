@@ -18,6 +18,9 @@ interface FJCanvasContainerProps {
     onScaleChange?: (scale: number) => void;
 }
 
+/**
+ * @deprecated ref to [FJAIObjectRemoverContainer](../components/FJAIObjectRemover/container/FJAIObjectRemover.container.tsx)
+ */
 export default function FJCanvasContainer({ image, onCanvasReady, canvasSDK, onScaleChange }: FJCanvasContainerProps) {
     const [tab, setTab] = useState<'canvas' | 'history'>('canvas');
     const currentTab = useMemo(() => {

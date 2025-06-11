@@ -12,6 +12,9 @@ import { removeObjectRequest } from '../requests/requests';
 import { useToast } from '../components/toast/ToastProvider';
 import { IconAlertCircle } from '@tabler/icons-react';
 
+/**
+ * @deprecated ref to [FJAIObjectRemoverContainer](../components/FJAIObjectRemover/container/FJAIObjectRemover.container.tsx)
+ */
 export default function FJAIObjectRemoveContainer() {
     const [image, setImage] = useState<HTMLImageElement | null>(null);
     const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);

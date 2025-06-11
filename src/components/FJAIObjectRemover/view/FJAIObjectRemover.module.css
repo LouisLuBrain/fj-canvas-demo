@@ -1,0 +1,128 @@
+.container {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.content {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+}
+
+.content .left-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+
+    box-sizing: border-box;
+
+    width: 478px;
+
+    padding: 21px;
+
+    border-right: 1px solid #e0e0e0;
+}
+
+.content .right-content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.remove-object-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+
+    padding: 16px 24px;
+}
+
+.remove-object-btn span {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+
+    margin-left: 8px;
+
+    padding: 2px 4px;
+    padding-right: 8px;
+
+    border-radius: 9999px;
+
+    background-color: #a415754d;
+}
+
+.error-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.error-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 48px;
+    height: 48px;
+}
+
+.error-message {
+    max-width: 640px;
+
+    font-size: 16px;
+    font-weight: 500;
+
+    text-align: center;
+}
+
+.canvas-placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    padding: 24px;
+
+    background: url('../assets/fj-creations-placeholder-bg.png') no-repeat center center;
+    background-size: cover;
+}
+
+.canvas-placeholder-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+
+    text-align: center;
+}
+
+.canvas-placeholder-content h1 {
+    margin: 0;
+
+    color: #1c1c1e;
+    font-size: 32px;
+    font-weight: 600;
+}
+
+.canvas-placeholder-content p {
+    margin: 0;
+
+    color: #666;
+    font-size: 16px;
+}
+
+.canvas-placeholder-video {
+    width: 100%;
+    margin-top: 24px;
+
+    border-radius: 12px;
+}
