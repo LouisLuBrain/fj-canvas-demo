@@ -2,12 +2,15 @@
     display: flex;
     flex: 1;
     flex-direction: column;
+    height: 100vh;
 }
 
 .content {
     display: flex;
     flex: 1;
     flex-direction: row;
+
+    overflow: hidden;
 }
 
 .content .left-content {
