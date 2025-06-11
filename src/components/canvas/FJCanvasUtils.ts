@@ -17,6 +17,11 @@ export interface FJCanvasUtilsSnapshot extends DefaultConfig {
     isInEraserMode?: boolean;
 }
 
+export enum FJCanvasMode {
+    DRAW = 'DRAW',
+    ERASER = 'ERASER'
+}
+
 /**
  * 画布SDK
  * @class
@@ -26,18 +31,15 @@ export class FJCanvasUtils {
     private _canvas: HTMLCanvasElement;
     private _ctx: CanvasRenderingContext2D;
 
-    // TODO: optimize these properties
-    private _isDrawing: boolean = false;
-    private _isEraser: boolean = false;
-    private isInEraserMode: boolean = false;
+    private _isBrushing: boolean = false;
+    private _mode: FJCanvasMode = FJCanvasMode.DRAW;
 
     private _strokeColor: string | CanvasGradient | CanvasPattern = DEFAULT_STROKE_COLOR;
     private _strokeWidth: number = DEFAULT_STROKE_WIDTH;
     private _scale: number = 1;
-    
     // TODO: optimize this property to boolean
     private _scaleToFit: number = 1;
-
+    
     private _dpr: number = window.devicePixelRatio || 1;
     private _image: HTMLImageElement | null = null;
     private _maskCanvas: HTMLCanvasElement | null = null;
@@ -86,10 +88,10 @@ export class FJCanvasUtils {
             strokeWidth: this._strokeWidth,
             scale: this._scale,
             fitScale: this._scaleToFit,
-            isEraser: this._isEraser,
-            isDrawing: this._isDrawing,
+            isEraser: this._mode === FJCanvasMode.ERASER,
+            isDrawing: this._isBrushing,
             dpr: this._dpr,
-            isInEraserMode: this.isInEraserMode,
+            isInEraserMode: this._mode === FJCanvasMode.ERASER,
         };
     }
 
@@ -188,9 +190,11 @@ export class FJCanvasUtils {
      * @param {MouseEvent} e 鼠标事件
      */
     private _drawLineMove = (e: MouseEvent) => {
-        if (!this._isDrawing || !this._maskCtx || !this._maskCanvas) return;
+        if (!this._isBrushing || !this._maskCtx || !this._maskCanvas) return;
 
-        this._maskCtx.globalCompositeOperation = 'source-over';
+        this._maskCtx.globalCompositeOperation = 
+            this._mode === FJCanvasMode.ERASER ? 'destination-out' : 'source-over';
+            
         const { clientX, clientY } = e;
         const { left, top } = this._canvas.getBoundingClientRect();
         const x = (clientX - left) * this._dpr;
@@ -203,17 +207,20 @@ export class FJCanvasUtils {
             this._drawInterpolatedLine(last, currentPoint, this._strokeColor, this._strokeWidth);
         }
 
+        this._lastPoint = currentPoint;
         this._maskCtx.globalCompositeOperation = 'source-over';
 
-        this._lastPoint = currentPoint;
         this._redraw();
     };
 
     private _drawMouseDown = (e: MouseEvent) => {
-        this._isDrawing = true;
+        this._isBrushing = true;
         this._lastPoint = null;
+        // 绘制第一个点
         if (this._maskCtx) {
-            this._maskCtx.globalCompositeOperation = 'source-over';
+            this._maskCtx.globalCompositeOperation = 
+                this._mode === FJCanvasMode.ERASER ? 'destination-out' : 'source-over';
+                
             const { clientX, clientY } = e;
             const { left, top } = this._canvas.getBoundingClientRect();
             const x = (clientX - left) * this._dpr;
@@ -226,108 +233,50 @@ export class FJCanvasUtils {
     };
 
     private _drawMouseUp = () => {
-        this._isDrawing = false;
-        // e.stopPropagation();
+        this._isBrushing = false;
     };
 
     /**
      * 开始绘制直线
      */
     startDrawLine() {
+        this._mode = FJCanvasMode.DRAW;
+        this._addEventListeners();
+    }
+    /**
+     * 开始擦除
+     */
+    startEraser() {
+        this._mode = FJCanvasMode.ERASER;
+        this._addEventListeners();
+    }
+
+    private _addEventListeners() {
+        this._removeEventListeners(); // 先移除已有的事件监听
         this._canvas.addEventListener('mousedown', this._drawMouseDown);
-
         this._canvas.addEventListener('mouseup', this._drawMouseUp);
-
         this._canvas.addEventListener('mousemove', this._drawLineMove);
     }
 
-    /**
-     * 停止绘制直线
-     */
-    stopDrawLine() {
-        this._isDrawing = false;
+    private _removeEventListeners() {
         this._canvas.removeEventListener('mousedown', this._drawMouseDown);
         this._canvas.removeEventListener('mouseup', this._drawMouseUp);
         this._canvas.removeEventListener('mousemove', this._drawLineMove);
     }
 
-    private _eraserMouseDown = (e: MouseEvent) => {
-        this._isEraser = true;
-        this._lastPoint = null;
-        if (this._maskCtx) {
-            this._maskCtx.globalCompositeOperation = 'destination-out';
-            const { clientX, clientY } = e;
-            const { left, top } = this._canvas.getBoundingClientRect();
-            const x = (clientX - left) * this._dpr;
-            const y = (clientY - top) * this._dpr;
-            this.drawLine(x, y, this._strokeColor, this._strokeWidth);
-
-            this._maskCtx.globalCompositeOperation = 'source-over';
-
-            this._redraw();
-        }
-    };
-
-    private _eraserMouseUp = () => {
-        this._isEraser = false;
-        // e.stopPropagation();
-    };
-
-    /**
-     * 擦除移动
-     * @private
-     * @param {MouseEvent} e 鼠标事件
-     */
-    private _eraserMove = (e: MouseEvent) => {
-        if (!this._isEraser || !this._maskCtx || !this._maskCanvas) return;
-
-        this._maskCtx.globalCompositeOperation = 'destination-out';
-        const { clientX, clientY } = e;
-        const { left, top } = this._canvas.getBoundingClientRect();
-        const x = (clientX - left) * this._dpr;
-        const y = (clientY - top) * this._dpr;
-
-        const currentPoint = { x, y };
-        const last = this._lastPoint;
-
-        if (last) {
-            this._drawInterpolatedLine(last, currentPoint, this._strokeColor, this._strokeWidth);
-        }
-
-        this._lastPoint = currentPoint;
-        this._maskCtx.globalCompositeOperation = 'source-over';
-
-        this._redraw();
-    };
-
-    /**
-     * 开始擦除
-     */
-    startEraser() {
-        this.isInEraserMode = true;
-        this._canvas.addEventListener('mousedown', this._eraserMouseDown);
-
-        this._canvas.addEventListener('mouseup', this._eraserMouseUp);
-
-        this._canvas.addEventListener('mousemove', this._eraserMove);
+    stopDrawLine() {
+        this._isBrushing = false;
+        this._removeEventListeners();
     }
 
-    /**
-     * 停止擦除
-     */
     stopEraser() {
-        this._isEraser = false;
-        this.isInEraserMode = false;
-        this._canvas.removeEventListener('mousedown', this._eraserMouseDown);
-        this._canvas.removeEventListener('mouseup', this._eraserMouseUp);
-        this._canvas.removeEventListener('mousemove', this._eraserMove);
+        this._isBrushing = false;
+        this._removeEventListeners();
     }
 
     /**
      * 绘制图片
      * @param {HTMLImageElement} image 图片
-     * @param {number} x 左上角X坐标
-     * @param {number} y 左上角Y坐标
      */
     drawImage(image: HTMLImageElement): CanvasPattern | null {
         // 清除画布
@@ -414,7 +363,8 @@ export class FJCanvasUtils {
         if (this._maskCanvas && this._maskCtx) {
             // 绘制遮罩层 使用source-atop 和 globalAlpha 来实现遮罩层
             this._ctx.save();
-            this._ctx.filter = 'blur(12px)';
+            // FIXME: blur 效果不能兼容 safari
+            // this._ctx.filter = 'blur(12px)';
             this._ctx.globalCompositeOperation = 'source-atop';
             this._ctx.globalAlpha = 0.5;
             this._ctx.drawImage(this._maskCanvas, 0, 0);
@@ -437,8 +387,8 @@ export class FJCanvasUtils {
         this.stopDrawLine();
         this.stopEraser();
 
-        this._isDrawing = false;
-        this._isEraser = false;
+        this._isBrushing = false;
+        this._mode = FJCanvasMode.DRAW;
         this._canvas.dispatchEvent(new Event('destroy'));
     }
 

@@ -14,13 +14,13 @@ import FJTab from '../../tab/FJTab';
 import type { FJCanvasUtils } from '../../canvas/FJCanvasUtils';
 
 enum FJAIObjectRemoverTab {
-    Canvas = 'canvas',
-    History = 'history',
+    CANVAS = 'canvas',
+    HISTORY = 'history',
 }
 
 const TABS = [
-    { label: 'Creations', value: FJAIObjectRemoverTab.Canvas, icon: <IconPhoto size={18} /> },
-    { label: 'History', value: FJAIObjectRemoverTab.History, icon: <IconHistory size={18} /> },
+    { label: 'Creations', value: FJAIObjectRemoverTab.CANVAS, icon: <IconPhoto size={18} /> },
+    { label: 'History', value: FJAIObjectRemoverTab.HISTORY, icon: <IconHistory size={18} /> },
 ];
 
 interface FJAIObjectRemoverProps {
@@ -48,7 +48,7 @@ export default function FJAIObjectRemover({
     onStrokeWidthChange,
     onRemoveObject,
 }: FJAIObjectRemoverProps) {
-    const [tab, setTab] = useState<FJAIObjectRemoverTab>(FJAIObjectRemoverTab.Canvas);
+    const [tab, setTab] = useState<FJAIObjectRemoverTab>(FJAIObjectRemoverTab.CANVAS);
     const currentTab = useMemo(() => {
         return TABS.find(_tab => _tab.value === tab);
     }, [tab]);
@@ -106,7 +106,7 @@ export default function FJAIObjectRemover({
                             }}
                             tabs={TABS}
                         />
-                        {tab === FJAIObjectRemoverTab.Canvas &&
+                        {tab === FJAIObjectRemoverTab.CANVAS &&
                             (!image ? (
                                 <FJCanvasPlaceholder />
                             ) : (
@@ -117,7 +117,7 @@ export default function FJAIObjectRemover({
                                     onScaleChange={onScaleChange}
                                 />
                             ))}
-                        {tab === FJAIObjectRemoverTab.History && <FJImageHistoryList />}
+                        {tab === FJAIObjectRemoverTab.HISTORY && <FJImageHistoryList />}
                     </div>
                 </div>
             )}
