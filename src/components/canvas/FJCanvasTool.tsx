@@ -1,7 +1,7 @@
 import { IconEraser, IconPencil } from '@tabler/icons-react';
 import { useCallback, useEffect, useState } from 'react';
 
-import styles from './canvasTool.module.css';
+import styles from './FJCanvasTool.module.css';
 import { FJCanvasUtils } from './FJCanvasUtils';
 import FJRangeInput from '../rangeInput/FJRangeInput';
 

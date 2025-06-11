@@ -1,5 +1,5 @@
 import { IconMinus, IconPlus } from '@tabler/icons-react';
-import styles from './canvasTool.module.css';
+import styles from './FJCanvasTool.module.css';
 import { useCallback } from 'react';
 import FJRangeInput from '../rangeInput/FJRangeInput';
 

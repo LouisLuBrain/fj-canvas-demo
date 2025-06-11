@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState } from 'react';
 
-import styles from './toast.module.css';
+import styles from './FJToast.module.css';
 
 interface FJToastContextProps {
     showToast: (config: FJToastConfig) => void;

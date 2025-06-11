@@ -1,4 +1,4 @@
-import styles from './imageHistoryList.module.css';
+import styles from './FJImageHistoryList.module.css';
 
 import image1 from '../../assets/luca-ercolani-pPLKOwxVmfE-unsplash.jpg';
 import image3 from '../../assets/alexander-mass-ohVkrmTwirg-unsplash.jpg';

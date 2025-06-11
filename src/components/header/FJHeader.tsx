@@ -1,5 +1,5 @@
 import { IconChevronDown, IconPlus, IconSparkles } from '@tabler/icons-react';
-import styles from './header.module.css';
+import styles from './FJHeader.module.css';
 import fjLogo from '../../assets/fj-logo.svg';
 import fjUserProfile from '../../assets/fj-user-profile.svg';
 import fjCoin from '../../assets/fj-coin.png';

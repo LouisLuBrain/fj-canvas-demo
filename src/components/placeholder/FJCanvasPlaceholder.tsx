@@ -1,4 +1,4 @@
-import styles from './canvasPlaceholder.module.css';
+import styles from './FJCanvasPlaceholder.module.css';
 
 interface FJCanvasPlaceholderProps {
     title?: string;

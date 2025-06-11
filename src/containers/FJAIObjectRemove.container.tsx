@@ -1,12 +1,12 @@
 import { useMemo, useState, useCallback, useLayoutEffect } from 'react';
 import FJHeader from '../components/header/FJHeader';
-import styles from './container.module.css';
+import styles from './FJContainer.module.css';
 import FJCanvasTool from '../components/canvas/FJCanvasTool';
 import FJImageUploader from '../components/imageUploader/FJImageUploader';
 import { FJCanvasUtils } from '../components/canvas/FJCanvasUtils';
 
 import FJCoinIcon from '../assets/fj-coin.png';
-import commonStyles from '../common.module.css';
+import commonStyles from '../FJCommon.module.css';
 import FJCanvasContainer from './FJCanvas.container';
 import { removeObjectRequest } from '../requests/requests';
 import { useToast } from '../components/toast/ToastProvider';

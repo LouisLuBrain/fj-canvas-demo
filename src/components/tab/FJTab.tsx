@@ -1,4 +1,4 @@
-import styles from './tab.module.css';
+import styles from './FJTab.module.css';
 
 export interface Tab {
     label?: string;

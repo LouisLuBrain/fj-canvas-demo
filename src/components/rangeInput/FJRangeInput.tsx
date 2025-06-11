@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import styles from './rangeInput.module.css';
+import styles from './FJRangeInput.module.css';
 
 interface FJRangeInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     value: number;

@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
-import styles from './imageUploader.module.css';
+import styles from './FJImageUploader.module.css';
 import fjUploadIcon from '../../assets/fj-upload-icon.svg';
 import { IconUpload } from '@tabler/icons-react';
-import commonStyles from '../../common.module.css';
+import commonStyles from '../../FJCommon.module.css';
 import { useToast } from '../toast/ToastProvider';
 
 const ACCEPT_IMAGE_FORMAT = [

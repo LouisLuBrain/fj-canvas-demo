@@ -1,4 +1,4 @@
-import styles from './App.module.css';
+import styles from './FJApp.module.css';
 import { FJToastProvider } from './components/toast/ToastProvider';
 import FJAIObjectRemovePage from './pages/FJAIObjectRemovePage';
 

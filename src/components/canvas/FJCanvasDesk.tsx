@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { FJCanvasUtils } from './FJCanvasUtils';
 import FJCanvasFloatToolBar from './FJCanvasFloatToolBar';
-import styles from './canvasDesk.module.css';
+import styles from './FJCanvasDesk.module.css';
 
 interface FJCanvasDeskProps {
     image?: HTMLImageElement;
