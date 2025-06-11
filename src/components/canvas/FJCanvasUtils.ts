@@ -37,8 +37,8 @@ export class FJCanvasUtils {
     private _strokeColor: string | CanvasGradient | CanvasPattern = DEFAULT_STROKE_COLOR;
     private _strokeWidth: number = DEFAULT_STROKE_WIDTH;
     private _scale: number = 1;
-    // TODO: optimize this property to boolean
-    private _scaleToFit: number = 1;
+    
+    private _fitScale: number = 1;
     
     private _dpr: number = window.devicePixelRatio || 1;
     private _image: HTMLImageElement | null = null;
@@ -67,8 +67,8 @@ export class FJCanvasUtils {
         this._canvas.height = height * this._dpr;
 
         // 设置显示大小
-        this._canvas.style.width = `${width}px`;
-        this._canvas.style.height = `${height}px`;
+        // this._canvas.style.width = `${width}px`;
+        // this._canvas.style.height = `${height}px`;
 
         // 清空画布
         ctx.clearRect(0, 0, width, height);
@@ -77,6 +77,8 @@ export class FJCanvasUtils {
 
         this._maskCanvas = document.createElement('canvas');
         this._maskCtx = this._maskCanvas.getContext('2d')!;
+
+        this.onResize(this.setFitInView.bind(this));
     }
 
     /**
@@ -87,7 +89,7 @@ export class FJCanvasUtils {
         return {
             strokeWidth: this._strokeWidth,
             scale: this._scale,
-            fitScale: this._scaleToFit,
+            fitScale: this._fitScale,
             isEraser: this._mode === FJCanvasMode.ERASER,
             isDrawing: this._isBrushing,
             dpr: this._dpr,
@@ -173,7 +175,7 @@ export class FJCanvasUtils {
             this._maskCtx.arc(
                 logicalPoint.x,
                 logicalPoint.y,
-                lineWidth / 2 / this._scaleToFit / this._dpr,
+                lineWidth / 2 / this._fitScale / this._dpr,
                 0,
                 Math.PI * 2,
             );
@@ -279,6 +281,7 @@ export class FJCanvasUtils {
      * @param {HTMLImageElement} image 图片
      */
     drawImage(image: HTMLImageElement): CanvasPattern | null {
+        this._image = image;
         // 清除画布
         this.clear();
         const offscreen = document.createElement('canvas');
@@ -287,16 +290,11 @@ export class FJCanvasUtils {
         offscreen.width = image.naturalWidth * this._dpr;
         offscreen.height = image.naturalHeight * this._dpr;
 
-        // 计算缩放比例（基于显示尺寸）
-        const scaleX = (this._canvas.width - CANVAS_FIT_PADDING_X * 2 * this._dpr) / (image.naturalWidth * this._dpr);
-        const scaleY = (this._canvas.height - CANVAS_FIT_PADDING_Y * 2 * this._dpr) / (image.naturalHeight * this._dpr);
-        const scaleToFit = Math.min(scaleX, scaleY);
-
-        this._scaleToFit = scaleToFit;
+        const fitScale = this._fitInView();
 
         // 计算居中位置（考虑DPR）
-        const scaledWidth = image.naturalWidth * this._dpr * scaleToFit;
-        const scaledHeight = image.naturalHeight * this._dpr * scaleToFit;
+        const scaledWidth = image.naturalWidth * this._dpr * fitScale;
+        const scaledHeight = image.naturalHeight * this._dpr * fitScale;
         const centerX = (this._canvas.width - scaledWidth) / 2;
         const centerY = (this._canvas.height - scaledHeight) / 2;
 
@@ -312,7 +310,7 @@ export class FJCanvasUtils {
             });
             if (!offscreenCtx) throw new Error('Failed to get offscreen context');
 
-            this._ctx.setTransform(scaleToFit * this._dpr, 0, 0, scaleToFit * this._dpr, centerX, centerY);
+            this._ctx.setTransform(fitScale * this._dpr, 0, 0, fitScale * this._dpr, centerX, centerY);
             this._ctx.save();
 
             // 在离屏画布上绘制原始图片
@@ -322,8 +320,6 @@ export class FJCanvasUtils {
             this._ctx.drawImage(offscreen, 0, 0);
 
             this._ctx.restore();
-
-            this._image = image;
 
             return this._ctx.createPattern(this._canvas, 'repeat');
         } catch (error) {
@@ -341,13 +337,42 @@ export class FJCanvasUtils {
         this._redraw();
     }
 
+    setFitInView() {
+
+        const parentElement = this._canvas.parentElement;
+        if(parentElement){
+            this._canvas.width = parentElement.clientWidth * this._dpr;
+            this._canvas.height = parentElement.clientHeight * this._dpr;
+            this._ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+            this.setScale(1);
+            this._fitInView();
+            this._redraw();
+        }
+
+    }
+
+    /**
+     * 更新 fitScale 以适应画布
+     * 计算方式是根据画布的实际大小和图片的自然大小来计算缩放比例
+     * @returns fitScale 缩放比例
+     */
+    private _fitInView(): number {
+        // 计算并更新 fitScale 以适应画布
+        if (!this._image || !this._canvas || !this._ctx) return 1;
+        const scaleX = (this._canvas.width - CANVAS_FIT_PADDING_X * 2 * this._dpr) / (this._image.naturalWidth * this._dpr);
+        const scaleY = (this._canvas.height - CANVAS_FIT_PADDING_Y * 2 * this._dpr) / (this._image.naturalHeight * this._dpr);
+        this._fitScale = Math.min(scaleX, scaleY);
+        return this._fitScale;
+    }
+
     private _redraw() {
         if (!this._image) return;
         const ctx = this._ctx;
         this._clearCanvas();
 
         // 更新中心点偏移
-        const localScale = this._scale * this._scaleToFit;
+        const localScale = this._scale * this._fitScale;
         const scaledWidth = this._image.naturalWidth * this._dpr * localScale;
         const scaledHeight = this._image.naturalHeight * this._dpr * localScale;
         // 计算居中位置（考虑DPR）
@@ -404,4 +429,12 @@ export class FJCanvasUtils {
             this._canvas.removeEventListener('destroy', callback);
         };
     }
+
+    onResize(callback: () => void) {
+        window.addEventListener('resize', callback);
+        return () => {
+            window.removeEventListener('resize', callback);
+        };
+    }
+
 }

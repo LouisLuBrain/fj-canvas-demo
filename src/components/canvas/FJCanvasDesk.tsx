@@ -100,9 +100,14 @@ const FJCanvasDesk: React.FC<FJCanvasDeskProps> = ({
         });
     }, [canvasSDK]);
 
+    const handleFitInView = useCallback(() => {
+        if (!canvasSDK) return;
+        canvasSDK.setFitInView();
+    }, [canvasSDK]);
+
     return (
         <div className={styles['canvas-desk']}>
-            <FJCanvasFloatToolBar scale={scale} onScaleChange={handleScaleChange} />
+            <FJCanvasFloatToolBar scale={scale} onScaleChange={handleScaleChange} onClickFitInView={handleFitInView} />
             <div ref={canvasContainerRef} id='canvas-container' className={styles['canvas-container']}>
                 <canvas ref={canvasRef} />
                 <div

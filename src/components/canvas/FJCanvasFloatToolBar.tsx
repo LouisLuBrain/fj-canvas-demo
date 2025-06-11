@@ -10,12 +10,15 @@ const RANGE_STEP = 1;
 
 interface FJCanvasFloatToolBarProps {
     onScaleChange?: (scale: number) => void;
+    onClickFitInView?: () => void;
     scale: number;
 }
 
-export default function FJCanvasFloatToolBar({ onScaleChange, scale = 100 }: FJCanvasFloatToolBarProps) {
-    // const [scale, setScale] = useState(100);
-
+export default function FJCanvasFloatToolBar({
+    onScaleChange,
+    scale = 100,
+    onClickFitInView,
+}: FJCanvasFloatToolBarProps) {
     const handleScaleChange = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
             // setScale(Number(e.target.value));
@@ -62,6 +65,11 @@ export default function FJCanvasFloatToolBar({ onScaleChange, scale = 100 }: FJC
                     title='zoom in'
                 >
                     <IconPlus size={16} />
+                </button>
+            </div>
+            <div className={styles['canvas-float-tool-bar-item']}>
+                <button className={styles['fit-in-view-btn']} onClick={onClickFitInView} title='fit in view'>
+                    Fit
                 </button>
             </div>
         </div>
